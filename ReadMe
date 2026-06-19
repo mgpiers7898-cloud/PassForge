@@ -5,14 +5,7 @@
 #    All Rights Reserved ...                          #
 #    (Starting project in : 29/4/2026)                #  
 #                                                     #
-# Just a Poem From Persian that i liked Too Much:     # 
-#                                                     #                 
-#    اشتیاقی که به دیدار تو دارد دل من              #
-#   دل من داند و من دانم و دل داند و من             #
-#                                                     #
-#######################################################    
-
-
+#######################################################
 this password make contain from 3 namespaces : one Character namespsce - MemoryPool Namespace - makingPassword namespace :
 
     each one resposible for a specific task that can be in several methods in different orders it means -> for exmple in the memoryPool 
