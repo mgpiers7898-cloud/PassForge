@@ -4,12 +4,6 @@
 #    Piers DelPiera Armando(MG.121)                   #
 #    All Rights Reserved ...                          #
 #    (Starting project in : 29/4/2026)                #  
-#                                                     #
-# Just a Poem From Persian that i liked Too Much:     # 
-#                                                     #                 
-#    اشتیاقی که به دیدار تو دارد دل من              #
-#   دل من داند و من دانم و دل داند و من             #
-#                                                     #
 #######################################################    
 
 
@@ -65,3 +59,5 @@ this password make contain from 3 namespaces : one Character namespsce - MemoryP
         string parsers to reach this goal quickly.. in other phases i'll add some more advanced parsers to be able to conver in more performance friendly 
         order! ->like useing the more low-level conversions or even mix of strings Of Numbers And exact Numbers! -> 
         using the charconv header file's functions and features Or other pasrser by personal implementations(THIS IS FOR PHASE 3 Not here!) 
+
+    Phase 2: Soon!
