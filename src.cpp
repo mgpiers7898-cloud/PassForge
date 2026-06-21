@@ -2,9 +2,7 @@
 #include<string>
 #include<random>
 #include<string_view>
-//one we want the Alphabets and numbers and other Signs also we want operators and strange mix of these things !:
-// so at the first we make the all of these in each var (array) for itration in each one :
-// namespace required for this one is better:
+
 namespace CharactersPool
 {
     constexpr std::string_view alphabets = "abcdefghijklmnopqrstuvwxyz";
