@@ -1,63 +1,63 @@
 
 #######################################################
-#    A HardCodedPassWordMaker(Simple Algorithms) by : #
+#    A HardCodedPassWordMaker by :                    #
 #    Piers DelPiera Armando(MG.121)                   #
 #    All Rights Reserved ...                          #
-#    (Starting project in : 29/4/2026)                #  
+#    (Starting project in : 21th/June/2026)           #  
 #######################################################    
 
 
-this password make contain from 3 namespaces : one Character namespsce - MemoryPool Namespace - makingPassword namespace :
+this password make contain from 3 namespaces : one CharacterPool namespsce - GeneratorsMethods Namespace - makingPassword namespace :
 
-    each one resposible for a specific task that can be in several methods in different orders it means -> for exmple in the memoryPool 
-    we have the memoryPool by manual design but also we have several randomize methods that are implemented by the STL : ranlux48 _ merseneTwister
-    and mereseneTwister_64 but i recommand to use your own cryptography method that satisfy you for security randoizing in that order is good in the
+    each one resposible for a specific task that can be in several methods in different orders it means -> for exmple in the GeneratorMetods
+    we have the GeneratorPool by manual design but also we have several randomize methods that are implemented by the STL : ranlux48 _ merseneTwister
+    and mereseneTwister_64 but i recommand to use your own cryptography method that satisfy you for security randomizing in that order is good in the
     more digits but still for critical using in the industry prefer to use you own method ... 
 
     NOTE :  in the end of each namespace i added some feature for to implement your implementation of methods if randomizing order and other
     languages feature to make the password much more strong and unpredictable -> (cross language password and adding new method for each)
-    with this approach you will be able to add you own memoryPool methods and mix it with my implementation and also several other Amazing features that 
-    i will add in the conssistant of the time!
+    with this approach you will be able to add you own GeneratorPool or/and CharacterPool methods and mix it with my implementation and also several other Amazing features that 
+    i will add in the conssistant of the time in other versions!
 
     SO : we wanna a real manual memory pool that works with the smart ptr's and also is able to do some mathemetical opeations for getting more complex password
-    in the randomize function for getting more unpredictable and stroger  also this operation need to wrtie some several methods that test the power of the password and
+    in the randomize function for getting more unpredictable and stronger password also this operation need to wrtie some several methods that test the power of the password and
     also we must write some methods that can visualize the power of password against each passwordCracker algorithms and application for this purpose..
 
     if i want to make some parts of each things i said ever :
 
-    phase 1 : 
-        wrting 3 namespaces : Charanters _ MemoryPools _ PasswordGenerator     
+    Phase 1 : 
+        wrting 3 namespaces : Charanters _ GeneratorMethods _ PasswordGenerator     
 
                                 (CharactersNamespace):  
 
         (Sign) _ (Alpabets) _ (CapitalAlphabets(eng))
-        (Numbers) _ (RandomizeIndex) _ (not cossLanguage is this phase)
+        (Numbers) _ (RandomizeIndex) _ {(not crossLanguage in this phase)} (enumClass-> for charset specify)...
         (AccessingSpecificElement) : 
         this one need to specifiy the type->(alphabets || capitals || signs || numbers, element)...
         Point: add feature if you need! -> performance is not critical but is neccessary so after each NS
-        please specify the RunTime Complexity and Space Complexity -> Big O Notation
+        specify the RunTime Complexity and Space Complexity -> Big O Notation
 
-                                    {MemoryPools}:
+                                    {GeneratorMethods}:
 
         {Manual1 : special Name after the implemnetation} _ {Manual2 : differnt access but same as Manual1} _
         {Manual3 : this is diffenrt method from scratch it use the stack base for reverse after the generating password!} _ 
 
         // RANDMIZING THROUGH the Digits For Simple Password :
         WARNING : Should Not USE Too Much Its Predictable If Use Too much! Because Of Using The uniform_int_distribution
-        {STLBase1 -> Using mt} _ {STLBase2 -> Using mt_64 for more digits in password} _ {STLBase3 -> using ranlux48_base } _
+        {STLBase1 -> Using mt} _ {STLBase2 -> Using mt_64 for more digits in password} _ {STLBase3 -> using ranlux48_base -> more overhead but good test} _
 
         // Using Another Method -> for now im working on it please wait fo this part! 
 
-                                    [MakingGenerator]:
+                                    [makingPassword]:
 
         this is where we use whatever in the other namespaces this namespace connect the all connections between another 2 namespaces
         that implement the logic of the whole password generatorin the on namespace for using easy in the main.cpp also this namespace
         is able to return the password in the terminal thorogh the cout form iostream and also works with more modern features like print
         from C++23.
-        in this namespae we have some feature to return the the password in the excat type of the password or in string type but in this approach
+        in this namespace we have some feature to return the the password in the excat type of the password or in string type but in this approach
         we will need a parser that change the type to string and vicer versa to other types... for this purpose in the first phase we use the STL's
-        string parsers to reach this goal quickly.. in other phases i'll add some more advanced parsers to be able to conver in more performance friendly 
-        order! ->like useing the more low-level conversions or even mix of strings Of Numbers And exact Numbers! -> 
+        string parsers to reach this goal quickly.. in other phases i'll add some more advanced parsers to be able to convert in more performance friendly 
+        order! ->like using the more low-level conversions or even mix of strings Of Numbers And exact Numbers! -> 
         using the charconv header file's functions and features Or other pasrser by personal implementations(THIS IS FOR PHASE 3 Not here!) 
 
     Phase 2: Soon!
