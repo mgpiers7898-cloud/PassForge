@@ -28,13 +28,6 @@ constexpr std::string_view typeSpecify(Charset set){
     return {};
 }
 
-
-
-
-
-
-
-
 namespace GeneratorMethods
 {
     
