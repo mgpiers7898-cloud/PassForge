@@ -1,0 +1,32 @@
+   // Custom mixing in the bit level suggest to DO NOT use in the Real World! its for educational and practice goals:
+    std::string morphicCasecadePro(const std::string_view input, const std::string& salt = "",
+        int rounds = 10)
+        {
+            unsigned long long state = 0x9E3779B97F4A7C15ULL;
+            std::string combined{input};
+            combined += salt;
+
+            // O(n^2) -> Quadratic:
+            for(int round = 0; round < rounds; round++)
+            {
+                for(char c : combined)
+                {
+                    state ^= (unsigned char)c + round;
+                    state += (state << 7) + (state >> 3);
+                    state ^= (state * 0x9E3779B97F4A7C15ULL) >> 13;
+                    state ^= (state << 17) | (state >> 47);
+                    state += (state * 0x9E3779B97F4A7C15ULL);
+                    state ^= (state >> 29) + (state << 23);
+                    state ^= (state * 0x9E3779B97F4A7C15ULL);
+                    state += 0x1F1F1F1F1F1F1F1FULL;
+                    state ^= (state << 37) | (state >> 27);
+                    state += (state >> 19) ^ (state << 11);
+                    state ^= (state * 0x9E3779B97F4A7C15ULL) >> 19;
+                    state += (state << 29) | (state >> 35);
+                    state ^= (state >> 11) + (state << 43);
+                }
+            }
+            std::stringstream ss;
+            ss << std::hex << std::setfill('0') << std::setw(16) << state;
+            return ss.str();
+        }
