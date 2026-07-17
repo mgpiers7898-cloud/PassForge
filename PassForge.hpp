@@ -7,13 +7,22 @@
 #include <vector>
 #include <stdexcept>
 #include <cstddef>
+#include <type_traits>
 // MIXING BASED ON THE CHARSET CHOOSING:
 enum class Charset
 {
-    Alpha,
-    CapAlpha,
-    Digit,
-    Symbol
+    Lower,
+    Upper,
+    Digits,
+    Symbols,
+    HexLower,
+    HexUpper,
+    Binary,
+    Octal,
+    Base32,
+    Base64,
+    Vowels,
+    Consonants
 };
 
 // Password Policy Scoped enum:
@@ -25,10 +34,68 @@ enum class PolicyRules
     Simple
 };
 
+// MIXING SEVERAL ENUM AND PASSING TO THE APPROPRIATE GENERATOR:
+enum class PoolType : unsigned int
+{
+    None        = 0,
+    Lower       = 1 << 0,
+    Upper       = 1 << 1,
+    Digits      = 1 << 2,
+    Symbols     = 1 << 3,
+    HexLower    = 1 << 4,
+    HexUpper    = 1 << 5,
+    Binary      = 1 << 6,
+    Octal       = 1 << 7,
+    Base32      = 1 << 8,
+    Base64      = 1 << 9,
+    Vowels      = 1 << 10,
+    Consonants  = 1 << 11,
+    All         = 1 << 12,
+};
+inline constexpr PoolType DefaultPool =
+    static_cast<PoolType>(
+        (1u << 0) | 
+        (1u << 1) | 
+        (1u << 2) |
+        (1u << 3));
+using PoolBits = std::underlying_type_t<PoolType>;
+
+// GLOBAL OVERLOADING OF | , & OPERATORS :
+constexpr PoolType operator|(PoolType lhs, PoolType rhs);
+constexpr PoolType operator&(PoolType lhs, PoolType rhs);
+constexpr PoolType operator|=(PoolType& lhs, PoolType rhs);
+constexpr PoolType operator&=(PoolType& lhs, PoolType rhs);
+
 namespace Pool
 {
-    inline constexpr std::string_view charsetsPool{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-_=+{}[]:;\"\'><./|~`1234567890"};
-    inline constexpr std::string_view hexPool{};
+    // ASCII BASIC POOL:
+    inline constexpr std::string_view asciiPrintablePool{
+        "abcdefghijklmnopqrstuvwxy"
+        "zABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-_"
+        "=+{}[]:;\"\'><./|~`1234567890"
+    };
+    inline constexpr std::string_view vowels{
+        "aeiouAEIOU"
+    };
+    inline constexpr std::string_view consonants{
+        "bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ"
+    };
+    // STANDARD ENCODINGS: Base32(RFC4648) Base64(RFC4648) Base53(URL)
+    inline constexpr std::string_view upHexPool{
+        "0123456789ABCDEF"},
+        lowHexPool{
+        "0123456789abcdef"
+    };
+    inline constexpr std::string_view octal{"01234567"};
+    inline constexpr std::string_view binary{"01"};
+    inline constexpr std::string_view Base32Pool{
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"},
+        Base64Pool{
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"},
+        Base64URL{
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"};
+
+    // WILL ADDING IN FUTURE UPDATES...
     inline constexpr std::string_view emojis{};
     inline constexpr std::string_view greeks{};
     inline constexpr std::string_view specialSymbols{};
@@ -43,6 +110,14 @@ private:
         std::vector<std::size_t> upperIndices_;
         std::vector<std::size_t> digitIndices_;
         std::vector<std::size_t> symbolIndices_;
+        std::vector<std::size_t> hexLowerIndices_;
+        std::vector<std::size_t> hexUpperIndices_;
+        std::vector<std::size_t> binaryIndices_;
+        std::vector<std::size_t> octalIndices_;
+        std::vector<std::size_t> base32Indices_;
+        std::vector<std::size_t> base64Indices_;
+        std::vector<std::size_t> vowelsIndices_;
+        std::vector<std::size_t> consonantsIndices_;
 
         void reset() noexcept;
     };
@@ -62,9 +137,13 @@ public:
     const std::vector<std::size_t> &
         getIndices(Charset) const;
 
+
     char getOneRandomizeChar(Charset);
 
     void setPool(std::string_view) noexcept;
+    void setMixPool(PoolType) noexcept;
+
+    const std::vector<std::size_t>& listPasser(PoolType) const;
 };
 
 class PasswordPolicy
@@ -98,6 +177,8 @@ private:
 
     Policies currentPolicy_;
 
+    const Policies &passRules() const noexcept { return this->currentPolicy_; }
+
     static constexpr const char *validationMessage =
         R"(Manual policy requirements:
     - Minimum length must not exceed maximum length.
@@ -111,6 +192,11 @@ public:
 
     void setManually(std::size_t min, std::size_t max, std::size_t lowers,
                      std::size_t uppers, std::size_t digits, std::size_t sym, bool ambigiuous, bool emoji);
+
+    const Policies &getRules() const
+    {
+        return this->passRules();
+    };
 };
 
 namespace Generator
@@ -120,4 +206,9 @@ namespace Generator
     std::string lowerAlphaWithNums(std::size_t);
 
     std::string mixPasscode(std::size_t);
+
+    std::string policyBasedPasscode(PolicyRules rule);
+
+    std::string Generator::multiPoolPasscode(
+        std::size_t size = static_cast<std::size_t>(PolicyRules::Strong), PoolType);
 }

@@ -3,5 +3,5 @@
 
 int main()
 {
-    std::cout << Generator::lowerAlphaWithNums(14);
+    std::cout << Generator::policyBasedPasscode(PolicyRules::TooStrong) <<'\n';
 }
