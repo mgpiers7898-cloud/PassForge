@@ -3,9 +3,9 @@
 // PASSWORD POLICY :
 PasswordPolicy::Policies::Policies() = default;
 PasswordPolicy::Policies::Policies(std::size_t min, std::size_t max, std::size_t lowers,
-                                   std::size_t uppers, std::size_t digits, std::size_t symbols,
-                                   bool ambigiuous, bool emoji) : minLength_(min), maxLength_(max), minLower_(lowers), minUpper_(uppers),
-                                                                  minDigit_(digits), minSymbol_(symbols), excludeAmbiguous_(ambigiuous), allowEmojis_(emoji)
+    std::size_t uppers, std::size_t digits, std::size_t symbols,
+    bool ambigiuous, bool emoji) : minLength_(min), maxLength_(max), minLower_(lowers), minUpper_(uppers),
+    minDigit_(digits), minSymbol_(symbols), excludeAmbiguous_(ambigiuous), allowEmojis_(emoji)
 {
 }
 
@@ -26,19 +26,19 @@ PasswordPolicy::Policies PasswordPolicy::makePolicy(PolicyRules requirement)
     }
 }
 
-bool PasswordPolicy::validateManualRules(const PasswordPolicy::Policies &p) const
+bool PasswordPolicy::validateManualRules(const PasswordPolicy::Policies& p) const
 {
     return p.minLength_ >= 8 &&
-           p.minLength_ <= p.maxLength_ &&
-           p.minLower_ <= p.minLength_ &&
-           p.minUpper_ <= p.minLength_ &&
-           p.minDigit_ <= p.minLength_ &&
-           p.minSymbol_ <= p.minLength_ &&
-           (p.minLower_ + p.minUpper_ + p.minDigit_ + p.minSymbol_) <= p.minLength_ && p.maxLength_ <= 256;
+        p.minLength_ <= p.maxLength_ &&
+        p.minLower_ <= p.minLength_ &&
+        p.minUpper_ <= p.minLength_ &&
+        p.minDigit_ <= p.minLength_ &&
+        p.minSymbol_ <= p.minLength_ &&
+        (p.minLower_ + p.minUpper_ + p.minDigit_ + p.minSymbol_) <= p.minLength_ && p.maxLength_ <= 256;
 }
 
 void PasswordPolicy::setManually(std::size_t min, std::size_t max, std::size_t lowers,
-                                 std::size_t uppers, std::size_t digits, std::size_t sym, bool ambigiuous, bool emoji)
+    std::size_t uppers, std::size_t digits, std::size_t sym, bool ambigiuous, bool emoji)
 {
     auto newPolicy = Policies(min, max, lowers, uppers, digits, sym, ambigiuous, emoji);
     if (this->validateManualRules(newPolicy))
