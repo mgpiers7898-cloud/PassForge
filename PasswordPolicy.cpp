@@ -27,7 +27,7 @@ PasswordPolicy::Policies PasswordPolicy::makePolicy(PolicyRules requirement)
 }
 
 bool PasswordPolicy::validateManualRules(const PasswordPolicy::Policies& p) const
-{
+{ // the Reduandant is for advanced Error checking in future! 
     return p.minLength_ >= 8 &&
         p.minLength_ <= p.maxLength_ &&
         p.minLower_ <= p.minLength_ &&

@@ -1,0 +1,35 @@
+// TODO:
+// Investigate replacing std::string with std::string_view in poolTable.
+// Current compiler/toolchain rejects the constexpr initialization.
+// In PassForge.hpp Line 219
+
+
+
+/*
+PoolType
+    │
+    ▼
+PoolBuilder::setPool()        ← Builds the character pool
+    │
+    ▼
+PoolCompatibility::validate()  ← Checks pool against PasswordPolicy
+    │                              Removes repeated characters
+    ▼
+PoolAnalyzer::poolChecker()   ← Categorizes into Lower/Upper/Digits/Symbols indices
+    │
+    ▼
+Generator::generateByPolicy() ← Uses indices + engine to pick characters
+    │                              Future: Botan/Crypto++ RNG
+    ▼
+Password output               ← String, stream, file, wordlist
+    │
+    ▼
+Brute-force estimator         ← Estimates cracking time/power
+*/
+
+
+/*
+std::bind1st - creates a callable object with the first argument fixed to
+the given value.
+std::bind2nd - creates a callable object with the second argument fixed
+*/
