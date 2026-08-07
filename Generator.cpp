@@ -1,65 +1,10 @@
 #include "PassForge.hpp"
-
+#include <iostream>
 std::mt19937 &Generator::getEngine()
 {
     static std::mt19937 engine(std::random_device{}());
     return engine;
 }
-
-std::string Generator::generateByPolicy(PolicyRules ruleSet)
-{
-    std::string pass{};
-    PoolAnalyzer charset(Pool::asciiPrintablePool);
-
-    PasswordPolicy rules;
-    rules.setPreset(ruleSet);
-    const auto &currentRule = rules.getRules();
-    auto [minLen, maxLen, low, up, dig, sym, exclude, emoji] = currentRule;
-    std::size_t required{low + up + sym + dig};
-
-    std::uniform_int_distribution<std::size_t> dist(minLen, maxLen);
-    std::size_t length{dist(getEngine())};
-    pass.reserve(length);
-
-    
-
-    // C++17 required for this binding :
-
-    std::size_t remaining{length - required};
-
-    for (std::size_t it = 0; it < low; it++)
-    {
-        pass.push_back(charset.pickRandom(Charset::Lower));
-    }
-    for (std::size_t it = 0; it < up; it++)
-    {
-        pass.push_back(charset.pickRandom(Charset::Upper));
-    }
-    for (std::size_t it = 0; it < dig; it++)
-    {
-        pass.push_back(charset.pickRandom(Charset::Digits));
-    }
-    for (std::size_t it = 0; it < sym; it++)
-    {
-        pass.push_back(charset.pickRandom(Charset::Symbols));
-    }
-    // add something for : these :
-    // Excluded and Ambigiuous and Emoji character will implement in the near future!
-    if (remaining > 0)
-    {
-        size_t rand{};
-        std::uniform_int_distribution<std::size_t>
-            distribution(0, Pool::asciiPrintablePool.size() - 1);
-        for (size_t i{}; i < remaining; ++i)
-        {
-            rand = distribution(getEngine());
-            pass.push_back(Pool::asciiPrintablePool[rand]);
-        }
-    }
-    std::shuffle(pass.begin(), pass.end(), getEngine());
-    return pass;
-}
-
 std::string Generator::generatePassword(std::size_t size)
 {
     std::string pass{};
@@ -72,5 +17,75 @@ std::string Generator::generatePassword(std::size_t size)
         pass.push_back(Pool::asciiPrintablePool[index]);
     }
     std::shuffle(pass.begin(), pass.end(), getEngine());
+    return pass;
+}
+
+[[nodiscard]]std::optional<std::string> Generator::generateByPolicy(PoolType type, PolicyRules ruleSet)
+{
+    // Build :
+    PoolBuilder builder;
+    builder.setPool(type);
+    // Validation :
+    PasswordPolicy policy;
+    policy.setPreset(ruleSet);
+    // Check :
+    PoolCompatibility compact(builder, policy);
+    auto [noRep, satis] = compact.validate(ruleSet);
+    if (!satis)
+    {
+        return std::nullopt;
+    }
+    // Get The result Pool :
+    std::string_view finalPool = builder.getPool().pool_;
+
+    // Analyzer For Seperation :
+    PoolAnalyzer analyzer(finalPool);
+    auto rules = policy.getRules();
+
+    // Generate:
+    std::string pass{};
+    std::uniform_int_distribution dist(rules.minLength_, rules.maxLength_);
+    std::size_t length = dist(Generator::getEngine());
+    pass.reserve(length);
+
+    for (std::size_t i{}; i < rules.minLower_; ++i)
+    {
+        pass += analyzer.pickRandom(Charset::Lower);
+    }
+    for (std::size_t i{}; i < rules.minUpper_; ++i)
+    {
+        pass += analyzer.pickRandom(Charset::Upper);
+    }
+    for (std::size_t i{}; i < rules.minDigit_; ++i)
+    {
+        pass += analyzer.pickRandom(Charset::Digits);
+    }
+    for (std::size_t i{}; i < rules.minSymbol_; ++i)
+    {
+        pass += analyzer.pickRandom(Charset::Symbols);
+    }
+    std::size_t remain = length -
+                         (rules.minLower_ + rules.minUpper_ + rules.minDigit_ + rules.minSymbol_);
+    if (remain > 0)
+    {
+        if (remain <= finalPool.size())
+        {
+            std::sample(finalPool.begin(),
+                        finalPool.end(),
+                        std::back_inserter(pass),
+                        remain,
+                        Generator::getEngine());
+        }
+        else
+        {
+            std::uniform_int_distribution<std::size_t> dist(0, finalPool.size() - 1);
+            for(std::size_t i{}; i < remain; ++i)
+            {
+                pass += finalPool[dist(Generator::getEngine())];
+            }
+        }
+    }
+
+    std::shuffle(pass.begin(), pass.end(), Generator::getEngine());
     return pass;
 }

@@ -5,7 +5,7 @@
 {
     if (list.empty())
         throw std::runtime_error("\nEMPTY CHARSET!\n");
-    auto engine(Generator::getEngine());
+    auto& engine(Generator::getEngine());
     std::uniform_int_distribution<std::size_t> dist(0, list.size() - 1);
     return dist(engine);
 }
@@ -78,7 +78,7 @@ PoolAnalyzer::getIndices(Charset type) const
     return pool_[realIndex];
 }
 //============================================================================
-void PoolAnalyzer::setPool(std::string_view customPool) noexcept
+void PoolAnalyzer::setPool(std::string_view customPool) 
 {
     pool_ = customPool;
     poolChecker();

@@ -1,5 +1,5 @@
 #pragma once
-
+#include <optional>
 #include <string>
 #include <random>
 #include <string_view>
@@ -7,13 +7,13 @@
 #include <vector>
 #include <stdexcept>
 #include <cstddef>
-#include <type_traits>
 #include <cstdint>
 #include <span>
 #include <utility>
 #include <concepts>
 #include <array>
 #include <algorithm>
+#include <cstdint>
 // MIXING BASED ON THE CHARSET CHOOSING:
 enum class Charset
 {
@@ -66,10 +66,28 @@ inline constexpr PoolType DefaultPool =
         (1u << 3));
 
 // GLOBAL OVERLOADING OF | , & OPERATORS :
-[[nodiscard]] constexpr PoolType operator|(PoolType lhs, PoolType rhs) noexcept;
-[[nodiscard]] constexpr PoolType operator&(PoolType lhs, PoolType rhs) noexcept;
-[[nodiscard]] constexpr PoolType operator|=(PoolType &lhs, PoolType rhs) noexcept;
-[[nodiscard]] constexpr PoolType operator&=(PoolType &lhs, PoolType rhs) noexcept;
+// Definitions (inline in header)
+[[nodiscard]] constexpr PoolType operator|(PoolType lhs, PoolType rhs) noexcept
+{
+    return static_cast<PoolType>(static_cast<unsigned int>(lhs) | static_cast<unsigned int>(rhs));
+}
+
+[[nodiscard]] constexpr PoolType operator&(PoolType lhs, PoolType rhs) noexcept
+{
+    return static_cast<PoolType>(static_cast<unsigned int>(lhs) & static_cast<unsigned int>(rhs));
+}
+
+[[nodiscard]] constexpr PoolType operator|=(PoolType &lhs, PoolType rhs) noexcept
+{
+    lhs = static_cast<PoolType>(static_cast<unsigned int>(lhs) | static_cast<unsigned int>(rhs));
+    return lhs;
+}
+
+[[nodiscard]] constexpr PoolType operator&=(PoolType &lhs, PoolType rhs) noexcept
+{
+    lhs = static_cast<PoolType>(static_cast<unsigned int>(lhs) & static_cast<unsigned int>(rhs));
+    return lhs;
+}
 
 namespace Pool
 {
@@ -141,7 +159,7 @@ public:
 
     [[nodiscard]] char pickRandom(Charset);
 
-    void setPool(std::string_view) noexcept;
+    void setPool(std::string_view);
 };
 
 class PasswordPolicy
@@ -195,32 +213,30 @@ public:
     {
         return this->passRules();
     };
+
+    bool isSatisfiedBy(const PoolAnalyzer &analyzer, std::size_t actualSize) const;
 };
 
 namespace Generator
 {
     std::mt19937 &getEngine();
 
-    std::string generateByPolicy(PolicyRules);
-
     std::string generatePassword(std::size_t);
+
+    [[nodiscard]]std::optional<std::string> generateByPolicy(PoolType, PolicyRules ruleSet);
+
 }
 // Making Pool with other defined or custom pool with PoolType
 
 class PoolBuilder
 {
-private:
+
+public:
     struct PoolEntry
     {
         PoolType type_{};
         std::string pool_{};
     };
-    PoolEntry poolProperties_{};
-    // TABLE FOR HASFLAG:
-
-    [[nodiscard]] bool processFlags(PoolType flags, const PoolType &type) const noexcept;
-
-public:
     PoolBuilder() = default;
     PoolBuilder(const std::string &pool);
 
@@ -231,11 +247,22 @@ public:
     void setPool(PoolType types);
 
     const PoolEntry &getPool() const noexcept;
+
+    std::string &getThePool()
+    {
+        return this->poolProperties_.pool_;
+    }
+
+private:
+    PoolEntry poolProperties_{};
+    // TABLE FOR HASFLAG:
+
+    [[nodiscard]] bool processFlags(PoolType flags, const PoolType &type) const noexcept;
 };
 
 class PoolCompatibility
 {
-public:    
+public:
     struct ValidationRules
     {
         bool noRepeat_ = false;
@@ -246,7 +273,7 @@ public:
     explicit PoolCompatibility(const PoolBuilder &builder, const PasswordPolicy &policies);
     void setPool(const std::string &);
 
-    [[nodiscard]] ValidationRules validate() noexcept;
+    [[nodiscard]] ValidationRules validate(PolicyRules);
 
 private:
     ValidationRules checkPair_{};
@@ -255,4 +282,7 @@ private:
     PasswordPolicy policiesCheck_;
 
     void deleteDuplications() noexcept;
+
+    std::string moveThePool();
 };
+

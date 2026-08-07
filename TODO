@@ -33,3 +33,22 @@ std::bind1st - creates a callable object with the first argument fixed to
 the given value.
 std::bind2nd - creates a callable object with the second argument fixed
 */
+
+
+/*
+
+PassForge Status
+Module	Status
+PoolType enum + operators	Done
+Pool namespace (pools)	Done
+PoolBuilder	Done
+PoolAnalyzer	Done
+PasswordPolicy	Done
+PoolCompatibility	Done
+Generator (with policy)	Done
+Generator (simple)	Needs update (still hardcoded ASCII)
+Facade / PassForge wrapper	TODO
+Unique-only generation	TODO
+Botan/Crypto++ RNG	TODO
+
+*/

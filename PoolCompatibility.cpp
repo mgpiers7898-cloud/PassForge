@@ -4,10 +4,15 @@ PoolCompatibility::PoolCompatibility(const PoolBuilder &pool, const PasswordPoli
 {
 }
 
+std::string PoolCompatibility::moveThePool()
+{
+    return std::move(this->pool_.getThePool());
+}
+
 void PoolCompatibility::deleteDuplications() noexcept
 {
     //sorting
-    std::string pool = this->pool_.getPool().pool_;
+    std::string pool = this->moveThePool();
     std::sort(pool.begin(), pool.end());
     // Make Unique
     std::string::iterator newPoolIter = 
@@ -15,11 +20,11 @@ void PoolCompatibility::deleteDuplications() noexcept
     // Applying The unique
     pool.resize(std::distance(pool.begin(), newPoolIter));
 
+    std::shuffle(pool.begin(), pool.end(), Generator::getEngine());
     this->pool_.setPool(pool);
 }
 
-[[nodiscard]] PoolCompatibility::ValidationRules PoolCompatibility::validate()
-    noexcept
+[[nodiscard]]PoolCompatibility::ValidationRules PoolCompatibility::validate(PolicyRules rules)
 {
     // first del the duplications : 
     std::size_t fSize = this->pool_.getPool().pool_.size();
@@ -27,7 +32,18 @@ void PoolCompatibility::deleteDuplications() noexcept
     std::size_t aSize = this->pool_.getPool().pool_.size();
     this->checkPair_.noRepeat_ = (fSize != aSize);
 
-    this->policiesCheck_.setPreset(PolicyRules::Strong);// default for NOW!
+    this->policiesCheck_.setPreset(rules);// default for NOW!
     // we will make a generator able to pass for now its default...
+    const std::string& passingPool = this->pool_.getPool().pool_;
+    PoolAnalyzer analyzer(passingPool);
     
+    this->checkPair_.satisPolices_ =
+        this->policiesCheck_.isSatisfiedBy(analyzer, aSize);
+
+    return this->checkPair_;
+}
+
+void PoolCompatibility::setPool(const std::string& pool)
+{
+    this->pool_.setPool(pool);
 }
