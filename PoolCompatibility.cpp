@@ -20,7 +20,7 @@ void PoolCompatibility::deleteDuplications() noexcept
     // Applying The unique
     pool.resize(std::distance(pool.begin(), newPoolIter));
 
-    std::shuffle(pool.begin(), pool.end(), Generator::getEngine());
+    std::shuffle(pool.begin(), pool.end(), Engine::getEngine());
     this->pool_.setPool(pool);
 }
 

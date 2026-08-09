@@ -5,7 +5,7 @@
 {
     if (list.empty())
         throw std::runtime_error("\nEMPTY CHARSET!\n");
-    auto& engine(Generator::getEngine());
+    auto& engine(Engine::getEngine());
     std::uniform_int_distribution<std::size_t> dist(0, list.size() - 1);
     return dist(engine);
 }

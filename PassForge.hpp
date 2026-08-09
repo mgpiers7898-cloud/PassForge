@@ -14,6 +14,8 @@
 #include <array>
 #include <algorithm>
 #include <cstdint>
+#include <cmath>
+
 // MIXING BASED ON THE CHARSET CHOOSING:
 enum class Charset
 {
@@ -127,6 +129,20 @@ namespace Pool
         {
             return std::string_view(input);
         };
+
+        inline constexpr std::size_t AllPoolSize()
+        {
+            return Pool::asciiPrintablePool.size() +
+                   Pool::Base32Pool.size() +
+                   Pool::Base64Pool.size() +
+                   Pool::Base64URL.size() +
+                   Pool::binary.size() +
+                   Pool::consonants.size() +
+                   Pool::octal.size() +
+                   Pool::vowels.size() +
+                   Pool::upHexPool.size() +
+                   Pool::lowHexPool.size();
+        }
     }
 }
 
@@ -217,13 +233,12 @@ public:
     bool isSatisfiedBy(const PoolAnalyzer &analyzer, std::size_t actualSize) const;
 };
 
-namespace Generator
+namespace Engine
 {
-    std::mt19937 &getEngine();
 
     std::string generatePassword(std::size_t);
 
-    [[nodiscard]]std::optional<std::string> generateByPolicy(PoolType, PolicyRules ruleSet);
+    [[nodiscard]] std::optional<std::string> generateByPolicy(PoolType, PolicyRules ruleSet);
 
 }
 // Making Pool with other defined or custom pool with PoolType
@@ -286,3 +301,30 @@ private:
     std::string moveThePool();
 };
 
+namespace Engine
+{
+    inline std::uint32_t secure_random_uint32()
+    {
+        static std::random_device rd;
+        return rd();
+    }
+
+    class SecureEngine
+    {
+    public:
+        using result_type = std::uint32_t;
+        static constexpr std::uint32_t min() { return 0; }
+        static constexpr std::uint32_t max() { return UINT32_MAX; }
+
+        std::uint32_t operator()();
+    };
+
+    Engine::SecureEngine &getEngine();
+}
+// why class ? : we want to encapsulate entropy imple from out and
+// a capability for adding new entropy by user!
+
+namespace Entropy
+{
+    double estimate(std::string_view pass, std::size_t poolSize);
+};

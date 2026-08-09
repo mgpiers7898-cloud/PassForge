@@ -1,7 +1,10 @@
 #include "PassForge.hpp"
 #include <iostream>
-#include<Windows.h>
 int main()
 {
-	std::cout << Generator::generateByPolicy(PoolType::Base64 | PoolType::Base32 | PoolType::Binary | PoolType::ASCII, PolicyRules::TooStrong).value();
+	auto pass = Engine::generateByPolicy(PoolType::All, PolicyRules::TooStrong).value();
+
+	std::cout << pass.size() << '\n';
+	std::cout << Pool::Utilities::AllPoolSize() << '\n';
+	std::cout << Entropy::estimate(pass, Pool::Utilities::AllPoolSize());
 }

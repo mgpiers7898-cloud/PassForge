@@ -1,11 +1,7 @@
 #include "PassForge.hpp"
 #include <iostream>
-std::mt19937 &Generator::getEngine()
-{
-    static std::mt19937 engine(std::random_device{}());
-    return engine;
-}
-std::string Generator::generatePassword(std::size_t size)
+
+std::string Engine::generatePassword(std::size_t size)
 {
     std::string pass{};
     pass.reserve(size);
@@ -20,7 +16,7 @@ std::string Generator::generatePassword(std::size_t size)
     return pass;
 }
 
-[[nodiscard]]std::optional<std::string> Generator::generateByPolicy(PoolType type, PolicyRules ruleSet)
+[[nodiscard]]std::optional<std::string> Engine::generateByPolicy(PoolType type, PolicyRules ruleSet)
 {
     // Build :
     PoolBuilder builder;
@@ -45,7 +41,7 @@ std::string Generator::generatePassword(std::size_t size)
     // Generate:
     std::string pass{};
     std::uniform_int_distribution dist(rules.minLength_, rules.maxLength_);
-    std::size_t length = dist(Generator::getEngine());
+    std::size_t length = dist(Engine::getEngine());
     pass.reserve(length);
 
     for (std::size_t i{}; i < rules.minLower_; ++i)
@@ -74,18 +70,18 @@ std::string Generator::generatePassword(std::size_t size)
                         finalPool.end(),
                         std::back_inserter(pass),
                         remain,
-                        Generator::getEngine());
+                        Engine::getEngine());
         }
         else
         {
             std::uniform_int_distribution<std::size_t> dist(0, finalPool.size() - 1);
             for(std::size_t i{}; i < remain; ++i)
             {
-                pass += finalPool[dist(Generator::getEngine())];
+                pass += finalPool[dist(Engine::getEngine())];
             }
         }
     }
 
-    std::shuffle(pass.begin(), pass.end(), Generator::getEngine());
+    std::shuffle(pass.begin(), pass.end(), Engine::getEngine());
     return pass;
 }
