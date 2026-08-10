@@ -1,6 +1,4 @@
 #include "PassForge.hpp"
-#include <windows.h>
-#include <bcrypt.h>
 // Only the OS Seed can be really random like for satisfies the Entropy making:
 std::uint32_t Engine::SecureEngine::operator()()
 {

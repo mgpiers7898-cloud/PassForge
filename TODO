@@ -28,11 +28,6 @@ Brute-force estimator         ← Estimates cracking time/power
 */
 
 
-/*
-std::bind1st - creates a callable object with the first argument fixed to
-the given value.
-std::bind2nd - creates a callable object with the second argument fixed
-*/
 
 
 /*

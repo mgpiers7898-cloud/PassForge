@@ -7,4 +7,5 @@ int main()
 	std::cout << pass.size() << '\n';
 	std::cout << Pool::Utilities::AllPoolSize() << '\n';
 	std::cout << Entropy::estimate(pass, Pool::Utilities::AllPoolSize());
+	std::cout << Entropy::showTheEstimateTime(Entropy::estimate(pass, Pool::Utilities::AllPoolSize()), 1000);
 }

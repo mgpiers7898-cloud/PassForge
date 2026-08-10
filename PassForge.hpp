@@ -15,7 +15,9 @@
 #include <algorithm>
 #include <cstdint>
 #include <cmath>
-
+#include <windows.h>
+#include <bcrypt.h>
+#include <format>
 // MIXING BASED ON THE CHARSET CHOOSING:
 enum class Charset
 {
@@ -321,10 +323,33 @@ namespace Engine
 
     Engine::SecureEngine &getEngine();
 }
-// why class ? : we want to encapsulate entropy imple from out and
-// a capability for adding new entropy by user!
 
 namespace Entropy
 {
     double estimate(std::string_view pass, std::size_t poolSize);
-};
+    std::string showTheEstimateTime(double estimationBits, double guessPerSec);
+
+    struct CheckTime
+    {
+    private:
+        std::size_t years_;
+        std::size_t days_;
+        std::size_t hours_;
+        std::size_t minutes_;
+        std::size_t seconds_;
+        long double totalSec_;
+
+        std::string toString() const;
+
+    public:
+        CheckTime(std::size_t, std::size_t,
+                  std::size_t, std::size_t, std::size_t, long double);
+        std::string getTheTime() const;
+    };
+}
+
+namespace Entropy
+{
+    std::string sh256(std::string_view pass);
+    void toFile(std::string_view hash, const std::string &path);
+}
