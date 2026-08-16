@@ -32,8 +32,7 @@ void PoolCompatibility::deleteDuplications() noexcept
     std::size_t aSize = this->pool_.getPool().pool_.size();
     this->checkPair_.noRepeat_ = (fSize != aSize);
 
-    this->policiesCheck_.setPreset(rules);// default for NOW!
-    // we will make a generator able to pass for now its default...
+    this->policiesCheck_.setPreset(rules);
     const std::string& passingPool = this->pool_.getPool().pool_;
     PoolAnalyzer analyzer(passingPool);
     

@@ -24,7 +24,8 @@ enum class Charset
     Lower,
     Upper,
     Digits,
-    Symbols
+    Symbols,
+    Emoji
 };
 
 // Password Policy Scoped enum:
@@ -50,6 +51,7 @@ enum class PoolType : std::uint32_t
     Base64URL = 1 << 8,
     Vowels = 1 << 9,
     Consonants = 1 << 10,
+    Emoji = 1 << 11,
     All =
         ASCII |
         HexLower |
@@ -60,7 +62,8 @@ enum class PoolType : std::uint32_t
         Base64 |
         Base64URL |
         Vowels |
-        Consonants
+        Consonants |
+        Emoji
 };
 inline constexpr PoolType DefaultPool =
     static_cast<PoolType>(
@@ -119,7 +122,6 @@ namespace Pool
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"};
 
     // WILL ADDING IN FUTURE UPDATES...
-    inline constexpr std::string_view emojis{};
     inline constexpr std::string_view greeks{};
     inline constexpr std::string_view specialSymbols{};
 
@@ -145,6 +147,7 @@ namespace Pool
                    Pool::upHexPool.size() +
                    Pool::lowHexPool.size();
         }
+
     }
 }
 
@@ -157,6 +160,7 @@ private:
         std::vector<std::size_t> upperIndices_;
         std::vector<std::size_t> digitIndices_;
         std::vector<std::size_t> symbolIndices_;
+        std::vector<std::size_t> emojiIndices_;
 
         void reset() noexcept;
     };
@@ -235,7 +239,7 @@ public:
     bool isSatisfiedBy(const PoolAnalyzer &analyzer, std::size_t actualSize) const;
 };
 
-namespace Engine
+namespace Generator
 {
 
     std::string generatePassword(std::size_t);
@@ -257,7 +261,7 @@ public:
     PoolBuilder() = default;
     PoolBuilder(const std::string &pool);
 
-    static const std::array<PoolEntry, 9> poolTable;
+    static const std::array<PoolEntry, 10> poolTable;
     void setCustomPool(const std::string &pool);
 
     void setPool(const std::string &);
@@ -348,8 +352,9 @@ namespace Entropy
     };
 }
 
-namespace Entropy
+namespace Hash
 {
     std::string sh256(std::string_view pass);
     void toFile(std::string_view hash, const std::string &path);
 }
+

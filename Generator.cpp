@@ -1,7 +1,7 @@
 #include "PassForge.hpp"
 #include <iostream>
 
-std::string Engine::generatePassword(std::size_t size)
+std::string Generator::generatePassword(std::size_t size)
 {
     std::string pass{};
     pass.reserve(size);
@@ -9,14 +9,14 @@ std::string Engine::generatePassword(std::size_t size)
     std::uniform_int_distribution<size_t> dist(0, Pool::asciiPrintablePool.size() - 1);
     for (std::size_t i{}; i < size; ++i)
     {
-        index = dist(getEngine());
+        index = dist(Engine::getEngine());
         pass.push_back(Pool::asciiPrintablePool[index]);
     }
-    std::shuffle(pass.begin(), pass.end(), getEngine());
+    std::shuffle(pass.begin(), pass.end(), Engine::getEngine());
     return pass;
 }
 
-[[nodiscard]]std::optional<std::string> Engine::generateByPolicy(PoolType type, PolicyRules ruleSet)
+[[nodiscard]]std::optional<std::string> Generator::generateByPolicy(PoolType type, PolicyRules ruleSet)
 {
     // Build :
     PoolBuilder builder;
