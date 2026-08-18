@@ -9,8 +9,6 @@ int main()
 	std::cout << pass.size() << '\n';
 	std::cout << Pool::Utilities::AllPoolSize() << '\n';
 
+	std::cout << Hash::sh256(pass) <<'\n';
 	std::cout << pass <<'\n';
-
-	std::ofstream out("EmojiTest.txt");
-	out << pass ;
 }

@@ -71,8 +71,6 @@ PoolAnalyzer::getIndices(Charset type) const
         return counts_.digitIndices_;
     case Charset::Symbols:
         return counts_.symbolIndices_;
-    case Charset::Emoji:
-        return counts_.emojiIndices_;
     }
     // add something for : these :
     // Excluded and Ambigiuous and Emoji character will implement in the near future!

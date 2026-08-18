@@ -24,8 +24,7 @@ enum class Charset
     Lower,
     Upper,
     Digits,
-    Symbols,
-    Emoji
+    Symbols
 };
 
 // Password Policy Scoped enum:
@@ -62,8 +61,7 @@ enum class PoolType : std::uint32_t
         Base64 |
         Base64URL |
         Vowels |
-        Consonants |
-        Emoji
+        Consonants
 };
 inline constexpr PoolType DefaultPool =
     static_cast<PoolType>(
