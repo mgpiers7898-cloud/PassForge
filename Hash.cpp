@@ -51,7 +51,7 @@ std::string Hash::sh256(std::string_view pass)
     return outHex;
 }
 
-void Hash::toFile(std::string_view hash, const std::string& path = ".")
+void Hash::toFile(std::string_view hash, const std::string& path = ".PassForge.txt")
 {
     std::ofstream out(path, std::ios::app);
     out << hash <<'\n';
@@ -62,7 +62,6 @@ void Hash::toFile(std::string_view hash, const std::string& path = ".")
     }
     else
     {
-        out << hash <<'\n';
         std::cout << "DONE!";
     }
 }

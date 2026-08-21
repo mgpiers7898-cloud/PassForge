@@ -150,13 +150,13 @@ namespace Pool
         
         inline auto extractPass = [](auto res)
         {
-            if(res){return std::optional<std::string>(res -> pass_);}
+            if(res){return std::optional<std::string>(res.value());}
             return std::optional<std::string>(std::nullopt);
         };
 
         inline auto extractSize = [](auto res)
         {
-            if(res){return std::optional<std::size_t>(res -> poolSize_);}
+            if(res){return std::optional<std::size_t>(res.value());}
             return std::optional<std::size_t>(std::nullopt);
         };
     }
