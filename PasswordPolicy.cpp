@@ -61,15 +61,13 @@ bool PasswordPolicy::isSatisfiedBy(const PoolAnalyzer &analyzer, std::size_t act
     const auto &low = analyzer.getIndices(Charset::Lower);
     const auto &upp = analyzer.getIndices(Charset::Upper);
     const auto &dig = analyzer.getIndices(Charset::Digits);
-    const auto &sym = analyzer.getIndices(Charset::Symbols);
-    const auto &emj = analyzer.getIndices(Charset::Emoji); 
+    const auto &sym = analyzer.getIndices(Charset::Symbols); 
 
     if (actualSize >= this->currentPolicy_.minLength_ &&
         low.size() >= this->currentPolicy_.minLower_ &&
         upp.size() >= this->currentPolicy_.minUpper_ &&
         dig.size() >= this->currentPolicy_.minDigit_ &&
-        sym.size() >= this->currentPolicy_.minSymbol_ &&
-        this->currentPolicy_.allowEmojis_ || !emj.empty())
+        sym.size() >= this->currentPolicy_.minSymbol_)
     {
         return true;
     }

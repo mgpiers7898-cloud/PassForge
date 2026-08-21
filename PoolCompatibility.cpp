@@ -1,24 +1,20 @@
 #include "PassForge.hpp"
-
-PoolCompatibility::PoolCompatibility(const PoolBuilder &pool, const PasswordPolicy &policies) : pool_(pool), policiesCheck_(policies)
+PoolCompatibility::PoolCompatibility(PoolBuilder &pool, const PasswordPolicy &policies) : pool_(pool), policiesCheck_(policies)
 {
-}
-
-std::string PoolCompatibility::moveThePool()
-{
-    return std::move(this->pool_.getThePool());
 }
 
 void PoolCompatibility::deleteDuplications() noexcept
 {
+    auto& pool = this->pool_.getThePool();
     //sorting
-    std::string pool = this->moveThePool();
     std::sort(pool.begin(), pool.end());
     // Make Unique
     std::string::iterator newPoolIter = 
         std::unique(pool.begin(), pool.end());
+
     // Applying The unique
-    pool.resize(std::distance(pool.begin(), newPoolIter));
+    pool.erase(newPoolIter, pool.end());
+
 
     std::shuffle(pool.begin(), pool.end(), Engine::getEngine());
     this->pool_.setPool(pool);
@@ -31,6 +27,9 @@ void PoolCompatibility::deleteDuplications() noexcept
     deleteDuplications();
     std::size_t aSize = this->pool_.getPool().pool_.size();
     this->checkPair_.noRepeat_ = (fSize != aSize);
+
+    checkPair_.originalSize_ = fSize;
+    checkPair_.dedupedSize_ = aSize;
 
     this->policiesCheck_.setPreset(rules);
     const std::string& passingPool = this->pool_.getPool().pool_;

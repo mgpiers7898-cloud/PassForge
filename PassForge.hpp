@@ -1,4 +1,5 @@
 #pragma once
+
 #include <optional>
 #include <string>
 #include <random>
@@ -18,14 +19,14 @@
 #include <windows.h>
 #include <bcrypt.h>
 #include <format>
+#include <fstream>
 // MIXING BASED ON THE CHARSET CHOOSING:
 enum class Charset
 {
     Lower,
     Upper,
     Digits,
-    Symbols,
-    Emoji
+    Symbols
 };
 
 // Password Policy Scoped enum:
@@ -51,7 +52,7 @@ enum class PoolType : std::uint32_t
     Base64URL = 1 << 8,
     Vowels = 1 << 9,
     Consonants = 1 << 10,
-    Emoji = 1 << 11,
+
     All =
         ASCII |
         HexLower |
@@ -62,8 +63,7 @@ enum class PoolType : std::uint32_t
         Base64 |
         Base64URL |
         Vowels |
-        Consonants |
-        Emoji
+        Consonants
 };
 inline constexpr PoolType DefaultPool =
     static_cast<PoolType>(
@@ -102,7 +102,7 @@ namespace Pool
     inline constexpr std::string_view asciiPrintablePool{
         "abcdefghijklmnopqrstuvwxy"
         "zABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-_"
-        "=+{}[]:;\"\'><./|~`1234567890"};
+        "=+{}[]:;\"\'><./|~`1234567890?\\,"};
     inline constexpr std::string_view vowels{
         "aeiouAEIOU"};
     inline constexpr std::string_view consonants{
@@ -147,7 +147,18 @@ namespace Pool
                    Pool::upHexPool.size() +
                    Pool::lowHexPool.size();
         }
+        
+        inline auto extractPass = [](auto res)
+        {
+            if(res){return std::optional<std::string>(res.value());}
+            return std::optional<std::string>(std::nullopt);
+        };
 
+        inline auto extractSize = [](auto res)
+        {
+            if(res){return std::optional<std::size_t>(res.value());}
+            return std::optional<std::size_t>(std::nullopt);
+        };
     }
 }
 
@@ -160,7 +171,6 @@ private:
         std::vector<std::size_t> upperIndices_;
         std::vector<std::size_t> digitIndices_;
         std::vector<std::size_t> symbolIndices_;
-        std::vector<std::size_t> emojiIndices_;
 
         void reset() noexcept;
     };
@@ -244,7 +254,13 @@ namespace Generator
 
     std::string generatePassword(std::size_t);
 
-    [[nodiscard]] std::optional<std::string> generateByPolicy(PoolType, PolicyRules ruleSet);
+    struct PassProperties
+    {
+        std::optional<std::string> pass_{};
+        std::size_t poolSize_{};
+    };
+
+    [[nodiscard]] std::optional<Generator::PassProperties> generateByPolicy(PoolType, PolicyRules ruleSet);
 
 }
 // Making Pool with other defined or custom pool with PoolType
@@ -274,10 +290,11 @@ public:
         return this->poolProperties_.pool_;
     }
 
+    [[nodiscard]]std::size_t getOriginalSize() const;
+
 private:
     PoolEntry poolProperties_{};
     // TABLE FOR HASFLAG:
-
     [[nodiscard]] bool processFlags(PoolType flags, const PoolType &type) const noexcept;
 };
 
@@ -288,10 +305,11 @@ public:
     {
         bool noRepeat_ = false;
         bool satisPolices_ = false;
-        // Relying on Rules of zero ...
+        std::size_t originalSize_{};
+        std::size_t dedupedSize_{};
     };
     PoolCompatibility() = delete;
-    explicit PoolCompatibility(const PoolBuilder &builder, const PasswordPolicy &policies);
+    explicit PoolCompatibility(PoolBuilder &builder, const PasswordPolicy &policies);
     void setPool(const std::string &);
 
     [[nodiscard]] ValidationRules validate(PolicyRules);
@@ -299,12 +317,11 @@ public:
 private:
     ValidationRules checkPair_{};
 
-    PoolBuilder pool_{};
+    PoolBuilder& pool_;
     PasswordPolicy policiesCheck_;
 
     void deleteDuplications() noexcept;
 
-    std::string moveThePool();
 };
 
 namespace Engine

@@ -16,7 +16,7 @@ std::string Generator::generatePassword(std::size_t size)
     return pass;
 }
 
-[[nodiscard]]std::optional<std::string> Generator::generateByPolicy(PoolType type, PolicyRules ruleSet)
+[[nodiscard]]std::optional<Generator::PassProperties> Generator::generateByPolicy(PoolType type, PolicyRules ruleSet)
 {
     // Build :
     PoolBuilder builder;
@@ -26,7 +26,7 @@ std::string Generator::generatePassword(std::size_t size)
     policy.setPreset(ruleSet);
     // Check :
     PoolCompatibility compact(builder, policy);
-    auto [noRep, satis] = compact.validate(ruleSet);
+    auto [noRep, satis, oSize, aSize] = compact.validate(ruleSet);
     if (!satis)
     {
         return std::nullopt;
@@ -83,5 +83,9 @@ std::string Generator::generatePassword(std::size_t size)
     }
 
     std::shuffle(pass.begin(), pass.end(), Engine::getEngine());
-    return pass;
+
+    PassProperties passObj;
+    passObj.pass_ = pass;
+    passObj.poolSize_ = finalPool.size();
+    return passObj;
 }
