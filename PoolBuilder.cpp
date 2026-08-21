@@ -24,13 +24,6 @@ void PoolBuilder::setCustomPool(const std::string &pool) { this->poolProperties_
 void PoolBuilder::setPool(PoolType types)
 {
     this->poolProperties_.pool_.clear();
-    if ((types & PoolType::Emoji) == PoolType::Emoji)
-    {
-        for (const auto &it : Translator::emojiPool)
-        {
-            this->poolProperties_.pool_.append(Translator::toUTF8(it));
-        }
-    }
     for (const auto &[type, pool] : poolTable)
     {
         if (processFlags(types, type))
@@ -49,4 +42,9 @@ void PoolBuilder::setPool(const std::string &pool)
 const PoolBuilder::PoolEntry &PoolBuilder::getPool() const noexcept
 {
     return this->poolProperties_;
+}
+
+[[nodiscard]] std::size_t PoolBuilder::getOriginalSize() const
+{
+    return this->getPool().pool_.size();
 }

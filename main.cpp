@@ -4,11 +4,15 @@
 #include <fstream>
 int main()
 {
-	auto pass = Generator::generateByPolicy(PoolType::ASCII | PoolType::Emoji | PoolType::Base64, PolicyRules::Strong).value();
+	auto prop = Generator::generateByPolicy(PoolType::ASCII  | PoolType::Base64, PolicyRules::Medium);
+	std::string pass = Pool::Utilities::extractPass(prop).value();
+	std::size_t passSize = Pool::Utilities::extractSize(prop).value();
 
-	std::cout << pass.size() << '\n';
-	std::cout << Pool::Utilities::AllPoolSize() << '\n';
-
-	std::cout << Hash::sh256(pass) <<'\n';
 	std::cout << pass <<'\n';
+	std::cout << passSize <<'\n';
+
+	auto res = Entropy::estimate(pass, passSize);
+	std::cout << res <<'\n';
+
+	std::cout << Entropy::showTheEstimateTime(res, 1000000) <<'\n';
 }

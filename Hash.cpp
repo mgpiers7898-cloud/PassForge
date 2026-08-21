@@ -1,5 +1,5 @@
 #include "PassForge.hpp"
-
+#include <iostream>
 std::string Hash::sh256(std::string_view pass)
 {
     BCRYPT_HASH_HANDLE hHash = nullptr;
@@ -49,4 +49,20 @@ std::string Hash::sh256(std::string_view pass)
     BCryptCloseAlgorithmProvider(hAlgorithm, 0);
 
     return outHex;
+}
+
+void Hash::toFile(std::string_view hash, const std::string& path = ".")
+{
+    std::ofstream out(path, std::ios::app);
+    out << hash <<'\n';
+
+    if(!out)
+    {
+        std::cerr << "\nFailed to open file!\n";
+    }
+    else
+    {
+        out << hash <<'\n';
+        std::cout << "DONE!";
+    }
 }

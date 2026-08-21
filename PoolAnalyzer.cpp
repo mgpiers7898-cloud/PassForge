@@ -16,7 +16,6 @@ void PoolAnalyzer::AnalyzeResults::reset() noexcept
     AnalyzeResults::upperIndices_.clear();
     AnalyzeResults::digitIndices_.clear();
     AnalyzeResults::symbolIndices_.clear();
-    AnalyzeResults::emojiIndices_.clear();
 }
 
 void PoolAnalyzer::poolChecker()
@@ -39,13 +38,6 @@ void PoolAnalyzer::poolChecker()
         else if (std::ispunct(static_cast<unsigned char>(pool_[i])))
         {
             counts_.symbolIndices_.push_back(i);
-        }
-        unsigned char c = static_cast<unsigned char>(pool_[i]);
-        if(c >= 0xf0 && c <= 0xf4)
-        {
-            this->counts_.emojiIndices_.push_back(i);
-            i += 3;
-            continue;
         }
     }
 }
