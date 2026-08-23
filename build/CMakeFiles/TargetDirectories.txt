@@ -1,0 +1,3 @@
+D:/Personal Prjects/PassForge/build/CMakeFiles/passforge.dir
+D:/Personal Prjects/PassForge/build/CMakeFiles/edit_cache.dir
+D:/Personal Prjects/PassForge/build/CMakeFiles/rebuild_cache.dir
