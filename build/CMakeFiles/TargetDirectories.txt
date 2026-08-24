@@ -1,0 +1,3 @@
+D:/Personal Prjects/PassForge/build/CMakeFiles/passforge.dir
+D:/Personal Prjects/PassForge/build/CMakeFiles/ALL_BUILD.dir
+D:/Personal Prjects/PassForge/build/CMakeFiles/ZERO_CHECK.dir

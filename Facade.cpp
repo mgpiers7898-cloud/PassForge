@@ -43,8 +43,9 @@ void PassForge::runPrompt()
     auto pass = Generator::generateByPolicy(pools, ruleSet).value();
 
     std::cout << "Please Copy Your Password" << '\n'
-              << pass.pass_.value();
+              << pass.pass_.value() <<'\n';
     this->pass_ = pass.pass_.value();
+    this->size_ = pass.poolSize_;
 }
 
 [[nodiscard]] std::string PassForge::hash()
@@ -68,7 +69,7 @@ std::string PassForge::crackTime(double guessPerSec)
     return Entropy::showTheEstimateTime(PassForge::entropy(), guessPerSec);
 }
 
-void PassForge::saveInFile(const std::string &path = ".PassForge.txt") const
+void PassForge::saveInFile(const std::string &path) const
 {
     std::ofstream out(path, std::ios::app);
     if (this->pass_.empty())
