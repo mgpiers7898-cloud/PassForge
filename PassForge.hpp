@@ -20,6 +20,7 @@
 #include <bcrypt.h>
 #include <format>
 #include <fstream>
+
 // MIXING BASED ON THE CHARSET CHOOSING:
 enum class Charset
 {
