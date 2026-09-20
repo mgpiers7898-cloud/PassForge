@@ -1,5 +1,8 @@
-#include "PassForge.hpp"
+#include "Hash.hpp"
 #include <iostream>
+#include <cstring>
+#include <cstdint>
+#include <cstddef>
 std::string Hash::sh256(std::string_view pass)
 {
     BCRYPT_HASH_HANDLE hHash = nullptr;
@@ -40,7 +43,7 @@ std::string Hash::sh256(std::string_view pass)
     BCryptFinishHash(hHash, hashBytes.data(), hashSize, 0);
 
     std::string outHex{};
-    for(const auto& hex : hashBytes)
+    for (const auto &hex : hashBytes)
     {
         outHex.append(std::format("{:02x}", hex));
     }
@@ -51,12 +54,12 @@ std::string Hash::sh256(std::string_view pass)
     return outHex;
 }
 
-void Hash::toFile(std::string_view hash, const std::string& path = ".PassForge.txt")
+void Hash::toFile(std::string_view hash, const std::string &path = ".PassForge.txt")
 {
     std::ofstream out(path, std::ios::app);
-    out << hash <<'\n';
+    out << hash << '\n';
 
-    if(!out)
+    if (!out)
     {
         std::cerr << "\nFailed to open file!\n";
     }

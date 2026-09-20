@@ -1,4 +1,5 @@
 #include "Facade.hpp"
+#include "Hash.hpp"
 #include <iostream>
 void PassForge::setPass(const std::string &pass)
 {

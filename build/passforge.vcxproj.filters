@@ -33,9 +33,17 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="D:\Personal Prjects\PassForge\Hash.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
     <CustomBuild Include="D:\Personal Prjects\PassForge\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{3D541956-BBC7-3728-AA63-8D44962E98F4}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files">
       <UniqueIdentifier>{3075F0AD-EECD-355E-BF91-8611EF47E3D6}</UniqueIdentifier>
     </Filter>

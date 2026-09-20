@@ -15,6 +15,7 @@ add_executable(passforge
     PoolAnalyzer.cpp
     PoolBuilder.cpp
     PoolCompatibility.cpp
+    Hash.hpp
 )
 
 if(WIN32)

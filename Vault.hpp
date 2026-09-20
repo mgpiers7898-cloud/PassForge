@@ -1,19 +1,14 @@
 #include "PassForge.hpp"
-template <typename Container, typename HashAlgo>
+#include "Hash.hpp"
+
 class Vault
 {
-    Container buffer_;
-    Hash encAlgo_(std::string_view pass);
-    
+private:
+    std::size_t sizeAlloc_{};
+    std::vector<std::pair<bool, std::string>> buffer_{};
+
 
 public:
-    void add(std::string_view pass, std::string_view lable);
-    std::string get(std::string_view label);
-    void save(const std::string &path);
-    void load(const std::string &path);
+    void setBuffSize(std::size_t size);
+    void add(const std::string& pass);
 };
-
-class SHA256{};
-
-using DefaultValue = Vault<std::vector<unsigned char>, SHA256>;
-
