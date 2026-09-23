@@ -56,7 +56,7 @@ void PassForge::runPrompt()
         throw std::invalid_argument("No Password Generated!\n");
     }
 
-    auto hashedPass = Hash::sh256(this->pass_);
+    auto hashedPass = Hash::sha256(this->pass_);
     return hashedPass;
 }
 

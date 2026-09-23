@@ -4,5 +4,6 @@
 #include <format>
 int main()
 {
+    std::string some{"THERES SOMETHING TO SAY .... PIERA IS COMING!"};
 
 }
