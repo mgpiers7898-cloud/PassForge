@@ -1,16 +1,36 @@
 #include "Vault.hpp"
 
-void Vault::add(const std::string& pass, const std::string& key)
+void Vault::insert(std::string label, SecureBuffer data)
 {
-    this->buffer_.insert({pass, key});
-}
-void Vault::showStream(const std::string& key)
-{
-    std::cout << this->buffer_.find(key)->second << '\n';
+    hashInPlace(label, data);
+    this->buffer_.emplace(std::move(label), std::move(data));
 }
 
-std::string_view Vault::getPass(const std::string &key)
+void Vault::hashInPlace(std::string& label, SecureBuffer& data)
 {
-    std::string_view res = this->buffer_.find(key)->second;
-    return res;
+    auto l = Hash::sha512(label);
+    auto d = Hash::sha512(data.str());
+
+    label = std::move(l);
+    data.replace(std::move(d));
+
+    std::fill(l.begin(), l.end(), 0);
+    std::fill(d.begin(), d.end(), 0);
+}
+
+void Vault::add(std::string label, std::string_view pass)
+{
+    Vault::SecureBuffer secBuff(pass);
+    this->insert(std::move(label), std::move(secBuff));
+}
+
+void Vault::rmv(const std::string& label)
+{
+    if(this->buffer_.contains(label))
+    {
+        this->buffer_.erase(label);
+        return;
+    }
+    
+    throw std::invalid_argument("\nNON_EXIST ITEM\n");
 }

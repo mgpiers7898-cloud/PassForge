@@ -5,10 +5,42 @@
 class Vault
 {
 private:
-    std::unordered_map<std::string, std::string> buffer_{};
+    class SecureBuffer
+    {
+    private:
+        std::string data_{};
+    public:
+        SecureBuffer() {}
+        SecureBuffer(std::string_view sv) : data_(sv) {}
+
+        inline ~SecureBuffer()
+        {
+            std::fill(data_.begin(), data_.end(), 0);
+        }
+        SecureBuffer(const SecureBuffer&) = delete; // no copy
+        SecureBuffer& operator=(const SecureBuffer&) = delete;
+        SecureBuffer(SecureBuffer&&) = default;
+        SecureBuffer& operator=(SecureBuffer&&) = default;
+
+        inline const std::string& str() const {return this->data_;}
+        inline bool empty() const {return this->data_.empty();}
+        inline std::size_t size() const {return this->data_.size();}
+
+        inline void replace(std::string&& newData)
+        {
+            std::fill(data_.begin(), data_.end(), 0);
+            this->data_ = std::move(newData);
+        }
+    };
+
+    std::unordered_map<std::string, SecureBuffer> buffer_{};
+
+    void hashInPlace(std::string& label, SecureBuffer& data);
+    void insert(std::string label, SecureBuffer data);
 
 public:
-    void add(const std::string &pass, const std::string &key);
-    void showStream(const std::string &key);
-    std::string_view getPass(const std::string &key);
+    void add(std::string label, std::string_view pass);
+    void rmv(const std::string& label);
+
+    std::string getHashedPass(const std::string& label){}
 };
