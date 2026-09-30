@@ -34,3 +34,20 @@ void Vault::rmv(const std::string& label)
     
     throw std::invalid_argument("\nNON_EXIST ITEM\n");
 }
+
+std::string Vault::getHashedPass(const std::string& label)
+{
+    return buffer_.at(label).str();
+}
+
+bool Vault::cmpr(std::string_view pass, const std::string& label)
+{
+    return this->buffer_.at(label).str() == pass;
+}
+
+bool Vault::check()
+{
+    // THE KEYSEC OPRATION MUST HAPPEND HERE 
+}
+
+

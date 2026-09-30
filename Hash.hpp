@@ -7,4 +7,5 @@ namespace Hash
     void toFile(std::string_view hash, const std::string &path);
 
     std::string sha512(std::string_view pass);
+    std::array<std::uint8_t, 64> sha512Raw(std::string_view pass);
 }

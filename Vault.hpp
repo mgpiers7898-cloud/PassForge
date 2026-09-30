@@ -34,7 +34,8 @@ private:
     };
 
     std::unordered_map<std::string, SecureBuffer> buffer_{};
-
+    bool right{false};
+    bool check();
     void hashInPlace(std::string& label, SecureBuffer& data);
     void insert(std::string label, SecureBuffer data);
 
@@ -42,5 +43,6 @@ public:
     void add(std::string label, std::string_view pass);
     void rmv(const std::string& label);
 
-    std::string getHashedPass(const std::string& label){}
+    std::string getHashedPass(const std::string& label);
+    bool cmpr(std::string_view pass, const std::string& label);
 };
