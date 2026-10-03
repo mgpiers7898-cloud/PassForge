@@ -134,6 +134,8 @@ namespace Pool
             return std::string_view(input);
         };
 
+        inline constexpr std::uint64_t kGA = 0x1122334455667788ULL;
+
         inline constexpr std::size_t AllPoolSize()
         {
             return Pool::asciiPrintablePool.size() +

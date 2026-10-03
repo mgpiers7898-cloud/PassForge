@@ -1,0 +1,31 @@
+tempKey_ Type
+Currently std::uint64_t. But your plan was 5 layers ending in a normalized uint64_t. That's fine — the intermediate forms are wider, the final is 64-bit.
+
+genKey() — The 5 Layers
+Layer 1: OS seed
+
+BCryptGenRandom → 8 random bytes into a buffer
+
+Layer 2: XOR with Unicode constant
+
+A constant stored obfuscated, applied via inline asm
+
+Result: modified 8 bytes
+
+Layer 3: XOR with 64 chars from GlobPass
+
+GlobPass is 128 hex chars (from the SHA-512 hex)
+
+Sample 64 of them in a deterministic-but-non-obvious way
+
+XOR the 8 bytes with 8 of those chars (or fold the 64 down to 8 bytes)
+
+Layer 4: Unicode transform
+
+Take the 8 bytes, treat as code points, UTF-8 encode? Or UTF-32?
+
+The "Unicode" step needs a concrete meaning
+
+Layer 5: Normalize to uint64_t
+
+Pack the transformed bytes back into a uint64_t

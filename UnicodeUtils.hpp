@@ -37,4 +37,15 @@ namespace Translator
 
         return res;
     }
+
+    inline char32_t fromUTF8(std::uint8_t b1,
+        std::uint8_t b2, std::uint8_t b3, std::uint8_t b4)
+    {
+        char32_t cp = 0;
+        cp |= (b1 & 0x07) << 18;
+        cp |= (b2 & 0x3F) << 12;
+        cp |= (b3 & 0x3F) << 6;
+        cp |= (b4 & 0x3F);
+        return cp;
+    }
 }

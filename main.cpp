@@ -1,15 +1,11 @@
 #include <iostream>
-#include "Hash.hpp"
-#include <string>
-#include <format>
+#include "KeySec.hpp"
 int main()
 {
-    std::string some{"THERES SOMETHING TO SAY .... PIERA IS COMING!"};
-    
-    auto res = Hash::sha512Raw(some);
+    auto res = SecUtils::unicodeConst();
 
     for(const auto& it : res)
     {
-        std::cout << std::format("{:02x}", it);
+        std::cout << it;
     }
 }

@@ -2,6 +2,8 @@
 #include "Hash.hpp"
 #include <iostream>
 // FOR NOW THIS IS A SIMPLE VAULT NOT A REALLY HARD ONE BUT IT WILL BE A STRICT VAULT SOON!
+
+inline constexpr std::uint64_t kGC = 0x0F0F0F0F0F0F0F0FULL;
 class Vault
 {
 private:

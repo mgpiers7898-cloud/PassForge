@@ -5,7 +5,8 @@
 #include <iostream>
 #include <format>
 #include <cstring>
-
+#include "PassForge.hpp"
+#include "UnicodeUtils.hpp"
 struct uint512_t
 {
     std::uint64_t parts_[8];
@@ -85,7 +86,7 @@ struct Key512
     {
         for (std::size_t i{}; i < 8; i++)
         {
-            std::cout << this->key_ <<'\n';
+            std::cout << this->key_ << '\n';
         }
     }
     inline bool operator==(const Key512 &k) const
@@ -94,6 +95,28 @@ struct Key512
     }
 };
 
+namespace SecUtils
+{
+    std::array<std::uint8_t, 8> getBytes(); // Layer one
+    std::array<std::uint8_t, 8> unicode();
+
+    inline decltype(auto) xorVal(std::uint64_t DK) // Layer three oper
+    {
+        std::array<std::uint8_t, 8> token{};
+
+        auto bytes = getBytes();
+        auto unicodes = unicode();
+
+        for (std::size_t i{}; i < 8; i++)
+        {
+            token[i] = reinterpret_cast<std::uint8_t *>(DK)[i] ^ bytes[i] ^ unicodes[i];
+        }
+        return token;
+    }
+
+    inline constexpr std::uint64_t kGB = 0x99AABBCCDDEEFF00ULL;
+}
+
 class KeySec
 {
 private:
@@ -101,15 +124,20 @@ private:
     bool locked_{false};
 
     // WE re here to make a 5 layer of one time key
-    std::uint64_t tempKey_{};
-    inline void genKey()
+    inline std::uint64_t iter512() // Layer three DK for Make it XOR
     {
-
+        static std::uniform_int_distribution<std::size_t> dist(0, 7);
+        return this->globKey_.parts_[dist(Engine::getEngine())];
     }
+
+    // now time to make tempKey_
+
+    std::uint64_t tempKey_{};
+
 public:
     void setGlobPass(std::string_view pass);
 
-    void showOnce();
+    // void showOnce();
 
-    bool check();
+    // bool check();
 };
