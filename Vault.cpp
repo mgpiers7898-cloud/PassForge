@@ -48,6 +48,8 @@ bool Vault::cmpr(std::string_view pass, const std::string& label)
 bool Vault::check()
 {
     // THE KEYSEC OPRATION MUST HAPPEND HERE 
+
+    return false;
 }
 
 

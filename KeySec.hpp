@@ -7,6 +7,7 @@
 #include <cstring>
 #include "PassForge.hpp"
 #include "UnicodeUtils.hpp"
+
 struct uint512_t
 {
     std::uint64_t parts_[8];
@@ -107,9 +108,11 @@ namespace SecUtils
         auto bytes = getBytes();
         auto unicodes = unicode();
 
+        auto *dkBy = reinterpret_cast<std::uint8_t *>(&DK);
+
         for (std::size_t i{}; i < 8; i++)
         {
-            token[i] = reinterpret_cast<std::uint8_t *>(DK)[i] ^ bytes[i] ^ unicodes[i];
+            token[i] = dkBy[i] ^ bytes[i] ^ unicodes[i];
         }
         return token;
     }
@@ -120,18 +123,23 @@ namespace SecUtils
 class KeySec
 {
 private:
-    uint512_t globKey_{};
-    bool locked_{false};
 
-    // WE re here to make a 5 layer of one time key
     inline std::uint64_t iter512() // Layer three DK for Make it XOR
     {
         static std::uniform_int_distribution<std::size_t> dist(0, 7);
         return this->globKey_.parts_[dist(Engine::getEngine())];
     }
 
-    // now time to make tempKey_
+    inline bool isRemoteDebuggerPresent()
+    {
+        BOOL flag = FALSE;
+        CheckRemoteDebuggerPresent(GetCurrentProcess(), &flag);
+        return flag != FALSE;
+    }
 
+    void genTMPKey();
+
+    uint512_t globKey_{};
     std::uint64_t tempKey_{};
 
 public:

@@ -81,6 +81,6 @@ void PassForge::saveInFile(const std::string &path) const
     if (out)
     {
         out << this->pass_ << '\t';
-        out << Hash::sh256(this->pass_) << '\n';
+        out << Hash::sha256(this->pass_) << '\n';
     }
 }
