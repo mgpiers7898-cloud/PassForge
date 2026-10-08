@@ -1,13 +1,11 @@
 #pragma once
 
 #include "Hash.hpp"
-#include <cstdint>
 #include <iostream>
-#include <format>
-#include <cstring>
 #include "PassForge.hpp"
 #include "UnicodeUtils.hpp"
 #include "Obf.hpp"
+#include <atomic>
 struct uint512_t
 {
     std::uint64_t parts_[8];
@@ -85,10 +83,7 @@ struct Key512
 
     inline void toHex() const
     {
-        for (std::size_t i{}; i < 8; i++)
-        {
-            std::cout << this->key_ << '\n';
-        }
+        std::cout << this->key_ << '\n';
     }
     inline bool operator==(const Key512 &k) const
     {
@@ -118,28 +113,28 @@ namespace SecUtils
     }
 
     inline constexpr std::uint64_t kGB = 0x99AABBCCDDEEFF00ULL;
-
-    struct WatchEntry
-    {
-        void* addr_;
-        std::size_t size_;
-        std::uint64_t checkum_;
-    };
 }
 
 class KeySec
 {
 private:
+    struct WatchEntry
+    {
+        void *addr_;
+        std::size_t size_;
+        std::uint64_t checkum_;
+    };
 
-    std::vector<SecUtils::WatchEntry> hitList_{};
+    static std::vector<WatchEntry> hitList_;
     static HANDLE threadHND_;
 
     static void armWd();
     static void wdLoop();
-    static void denotate();
+    static void detonate();
     static bool compromised();
-    static bool armed_;
-    
+    static DWORD WINAPI wdEntry(LPVOID);
+    static std::atomic<bool> armed_;
+
     inline std::uint64_t iter512() // Layer three DK for Make it XOR
     {
         static std::uniform_int_distribution<std::size_t> dist(0, 7);
@@ -159,9 +154,14 @@ private:
     std::uint64_t tempKey_{};
 
     bool isLocked() const;
+
 public:
     void setGlobPass(std::string_view pass);
 
     bool showOnce();
 
+    inline static void wpnz()
+    {
+        armWd();
+    }
 };

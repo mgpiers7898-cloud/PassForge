@@ -64,7 +64,7 @@ bool KeySec::showOnce()
     this->globKey_.toHex();
     Obf::apply(this->tempKey_,Obf::getThreeRand());
     this->tempKey_ = 0;
-
+    
     armWd();
 
     return true;
