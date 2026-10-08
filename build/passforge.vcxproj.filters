@@ -37,6 +37,9 @@
     <ClCompile Include="D:\Personal Prjects\PassForge\KeySecUtilNS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D:\Personal Prjects\PassForge\BRN.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D:\Personal Prjects\PassForge\Hash.hpp">

@@ -18,6 +18,7 @@ add_executable(passforge
     Hash.hpp
     KeySec.cpp
     KeySecUtilNS.cpp
+    BRN.cpp
 )
 
 if(WIN32)

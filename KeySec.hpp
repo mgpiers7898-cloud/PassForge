@@ -7,7 +7,7 @@
 #include <cstring>
 #include "PassForge.hpp"
 #include "UnicodeUtils.hpp"
-
+#include "Obf.hpp"
 struct uint512_t
 {
     std::uint64_t parts_[8];
@@ -118,16 +118,32 @@ namespace SecUtils
     }
 
     inline constexpr std::uint64_t kGB = 0x99AABBCCDDEEFF00ULL;
+
+    struct WatchEntry
+    {
+        void* addr_;
+        std::size_t size_;
+        std::uint64_t checkum_;
+    };
 }
 
 class KeySec
 {
 private:
 
+    std::vector<SecUtils::WatchEntry> hitList_{};
+    static HANDLE threadHND_;
+
+    static void armWd();
+    static void wdLoop();
+    static void denotate();
+    static bool compromised();
+    static bool armed_;
+    
     inline std::uint64_t iter512() // Layer three DK for Make it XOR
     {
         static std::uniform_int_distribution<std::size_t> dist(0, 7);
-        return this->globKey_.parts_[dist(Engine::getEngine())];
+        return this->globKey_.key_.parts_[dist(Engine::getEngine())];
     }
 
     inline bool isRemoteDebuggerPresent()
@@ -139,13 +155,13 @@ private:
 
     void genTMPKey();
 
-    uint512_t globKey_{};
+    Key512 globKey_{};
     std::uint64_t tempKey_{};
 
+    bool isLocked() const;
 public:
     void setGlobPass(std::string_view pass);
 
-    // void showOnce();
+    bool showOnce();
 
-    // bool check();
 };

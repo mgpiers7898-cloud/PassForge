@@ -369,6 +369,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="D:\Personal Prjects\PassForge\Hash.hpp" />
     <ClCompile Include="D:\Personal Prjects\PassForge\KeySec.cpp" />
     <ClCompile Include="D:\Personal Prjects\PassForge\KeySecUtilNS.cpp" />
+    <ClCompile Include="D:\Personal Prjects\PassForge\BRN.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
