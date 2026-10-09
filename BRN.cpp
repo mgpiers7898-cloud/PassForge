@@ -32,7 +32,7 @@ void KeySec::armWd()
     KeySec::armed_ = true;
     std::cout << "Before CreateThread" << std::endl;
     KeySec::threadHND_ = CreateThread(nullptr, 0,
-        KeySec::wdEntry, nullptr, 0, nullptr);
+                                      KeySec::wdEntry, nullptr, 0, nullptr);
     std::cout << "Thread handle: " << threadHND_ << std::endl;
     if (threadHND_ == nullptr)
     {
@@ -49,24 +49,42 @@ DWORD WINAPI KeySec::wdEntry(LPVOID param)
 
 void KeySec::wdLoop()
 {
-    while(armed_)
+    while (armed_)
     {
         Sleep(3000);
         std::cout << "Searching!\n";
-        if(compromised()) detonate();
-        
+        if (compromised())
+            detonate();
     }
 }
 
 void KeySec::detonate()
 {
+    DWORD oldProt;
+    for (const auto &it : KeySec::hitList_)
+    {
+        VirtualProtect(it.addr_, it.size_,
+                       PAGE_EXECUTE_READWRITE, &oldProt);
+
+        std::uint8_t *bytes = static_cast<std::uint8_t *>(it.addr_);
+
+        for (std::size_t i{}; i < it.size_; i++)
+        {
+            bytes[i] = 0xCC;
+        }
+
+        VirtualProtect(it.addr_, it.size_,
+                       oldProt, &oldProt);
+    }
+    armed_ = false;
+    ExitProcess(1);
 }
 
 bool KeySec::compromised()
 {
-    for(const auto& tar: hitList_)
+    for (const auto &tar : hitList_)
     {
-        if(tar.checkum_ != Pool::Utilities::checksum(tar.addr_, tar.size_))
+        if (tar.checkum_ != Pool::Utilities::checksum(tar.addr_, tar.size_))
             return true;
     }
     return false;
