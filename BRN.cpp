@@ -1,5 +1,5 @@
 #include "KeySec.hpp"
-
+#include "bytes.hpp"
 std::vector<KeySec::WatchEntry> KeySec::hitList_;
 HANDLE KeySec::threadHND_ = nullptr;
 std::atomic<bool> KeySec::armed_ = false;
@@ -60,23 +60,31 @@ void KeySec::wdLoop()
 
 void KeySec::detonate()
 {
+    for(auto& part : globKey_.key_.parts_)
+    {
+        part = 0;
+    }
+    tempKey_ = 0;
+
+    if(IsDebuggerPresent())
+    {
+        __asm__ volatile("ud2");
+    }
+
+    BOF bof;
     DWORD oldProt;
     for (const auto &it : KeySec::hitList_)
     {
         VirtualProtect(it.addr_, it.size_,
                        PAGE_EXECUTE_READWRITE, &oldProt);
-
         std::uint8_t *bytes = static_cast<std::uint8_t *>(it.addr_);
-
-        for (std::size_t i{}; i < it.size_; i++)
-        {
-            bytes[i] = 0xCC;
-        }
-
+        bof.OVF(bytes, it.size_);
         VirtualProtect(it.addr_, it.size_,
                        oldProt, &oldProt);
     }
     armed_ = false;
+
+    std::cout << "DETONATED!\n";
     ExitProcess(1);
 }
 
@@ -89,3 +97,4 @@ bool KeySec::compromised()
     }
     return false;
 }
+

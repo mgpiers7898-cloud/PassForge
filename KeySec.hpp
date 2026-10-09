@@ -78,7 +78,6 @@ struct uint512_t
 
 struct Key512
 {
-
     uint512_t key_{};
 
     inline void toHex() const
@@ -150,8 +149,8 @@ private:
 
     void genTMPKey();
 
-    Key512 globKey_{};
-    std::uint64_t tempKey_{};
+    inline static Key512 globKey_{};
+    inline static std::uint64_t tempKey_{};
 
     bool isLocked() const;
 
