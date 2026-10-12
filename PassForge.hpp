@@ -20,6 +20,7 @@
 #include <bcrypt.h>
 #include <format>
 #include <fstream>
+#include <cstring>
 // MIXING BASED ON THE CHARSET CHOOSING:
 enum class Charset
 {
@@ -134,6 +135,8 @@ namespace Pool
             return std::string_view(input);
         };
 
+        inline constexpr std::uint64_t kGA = 0x1122334455667788ULL;
+
         inline constexpr std::size_t AllPoolSize()
         {
             return Pool::asciiPrintablePool.size() +
@@ -159,6 +162,19 @@ namespace Pool
             if(res){return std::optional<std::size_t>(res.value());}
             return std::optional<std::size_t>(std::nullopt);
         };
+
+        inline std::uint64_t checksum(const void* base, std::size_t size)
+        {
+            std::uint64_t sum{};
+            const std::uint8_t* bytes = static_cast<const uint8_t*>(base);
+
+            for(std::size_t i{}; i < size; i++)
+            {
+                sum ^= bytes[i];
+                sum = std::rotl(sum, 1);
+            }
+            return sum;
+        }
     }
 }
 
@@ -369,9 +385,5 @@ namespace Entropy
     };
 }
 
-namespace Hash
-{
-    std::string sh256(std::string_view pass);
-    void toFile(std::string_view hash, const std::string &path);
-}
+
 
