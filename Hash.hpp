@@ -1,6 +1,20 @@
 #include "PassForge.hpp"
 #include <unordered_map>
 
+enum class HashType
+{
+    SHA256,
+    SHA512,
+    SHA3,
+    MD5,
+    NTLM,
+    BOTAN,
+    BLAKE2,
+    CHACHA20,
+    RSA,
+    TLS
+};
+
 namespace Hash
 {
     std::string sha256(std::string_view pass);

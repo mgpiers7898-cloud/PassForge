@@ -129,11 +129,11 @@ private:
 
     static void armWd();
     static void wdLoop();
-    static void detonate();
+    static void neutralize();
     static bool compromised();
     static DWORD WINAPI wdEntry(LPVOID);
+    static std::atomic<bool> poisoned_;
     static std::atomic<bool> armed_;
-
     inline std::uint64_t iter512() // Layer three DK for Make it XOR
     {
         static std::uniform_int_distribution<std::size_t> dist(0, 7);
@@ -158,9 +158,4 @@ public:
     void setGlobPass(std::string_view pass);
 
     bool showOnce();
-
-    inline static void wpnz()
-    {
-        armWd();
-    }
 };

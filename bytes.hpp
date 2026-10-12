@@ -41,8 +41,8 @@ public:
         }
     }
 
-    inline void OVF(std::uint8_t *buf, std::size_t size, std::size_t ext = 64)
+    inline void OVF(std::uint8_t *buf, std::size_t size)
     {
-        fill(buf, size + ext);
+        fill(buf, size);
     }
 };

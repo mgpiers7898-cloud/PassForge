@@ -1,12 +1,14 @@
 #include "KeySec.hpp"
 #include "bytes.hpp"
+
 std::vector<KeySec::WatchEntry> KeySec::hitList_;
 HANDLE KeySec::threadHND_ = nullptr;
+std::atomic<bool> KeySec::poisoned_ = false;
 std::atomic<bool> KeySec::armed_ = false;
 
 void KeySec::armWd()
 {
-    if (KeySec::armed_)
+    if (KeySec::poisoned_)
         return;
 
     const void *wtchTrgt[] =
@@ -19,30 +21,31 @@ void KeySec::armWd()
             reinterpret_cast<const void *>(&SecUtils::unicode)};
     std::uint64_t sum{};
     MEMORY_BASIC_INFORMATION mbi;
-    for (std::size_t i{}; i < sizeof(wtchTrgt) / sizeof(wtchTrgt[0]); i++)
+    bool exists{};
+    for (std::size_t i{}; i < 6; ++i)
     {
         auto target = wtchTrgt[i];
         VirtualQuery(target, &mbi, sizeof(mbi));
-        void *base = mbi.BaseAddress;
-        std::size_t size = mbi.RegionSize;
 
-        sum = Pool::Utilities::checksum(base, size);
-        KeySec::hitList_.push_back({base, size, sum});
+        for (const auto &e : hitList_)
+            if (e.addr_ == mbi.BaseAddress)
+            {
+                exists = true;
+                break;
+            }
+            if(!exists)
+            {
+                std::uint64_t sum = Pool::Utilities::checksum(mbi.BaseAddress, mbi.RegionSize);
+                KeySec::hitList_.push_back({mbi.BaseAddress, mbi.RegionSize, sum});
+            }
     }
-    KeySec::armed_ = true;
-    std::cout << "Before CreateThread" << std::endl;
-    KeySec::threadHND_ = CreateThread(nullptr, 0,
-                                      KeySec::wdEntry, nullptr, 0, nullptr);
-    std::cout << "Thread handle: " << threadHND_ << std::endl;
-    if (threadHND_ == nullptr)
-    {
-        std::cout << "Thread creation failed: " << GetLastError() << '\n';
-    }
+    armed_ = true;
+    threadHND_ = CreateThread(nullptr, 0,
+                              KeySec::wdEntry, nullptr, 0, nullptr);
 }
 
 DWORD WINAPI KeySec::wdEntry(LPVOID param)
 {
-    std::cout << "wdEntry running" << std::endl;
     wdLoop();
     return 0;
 }
@@ -52,40 +55,23 @@ void KeySec::wdLoop()
     while (armed_)
     {
         Sleep(3000);
-        std::cout << "Searching!\n";
         if (compromised())
-            detonate();
+            neutralize();
     }
 }
 
-void KeySec::detonate()
+void KeySec::neutralize()
 {
-    for(auto& part : globKey_.key_.parts_)
-    {
-        part = 0;
-    }
-    tempKey_ = 0;
-
-    if(IsDebuggerPresent())
-    {
-        __asm__ volatile("ud2");
-    }
-
     BOF bof;
-    DWORD oldProt;
-    for (const auto &it : KeySec::hitList_)
-    {
-        VirtualProtect(it.addr_, it.size_,
-                       PAGE_EXECUTE_READWRITE, &oldProt);
-        std::uint8_t *bytes = static_cast<std::uint8_t *>(it.addr_);
-        bof.OVF(bytes, it.size_);
-        VirtualProtect(it.addr_, it.size_,
-                       oldProt, &oldProt);
-    }
-    armed_ = false;
 
-    std::cout << "DETONATED!\n";
-    ExitProcess(1);
+    bof.fill(reinterpret_cast<std::uint8_t *>(&globKey_),
+             sizeof(globKey_));
+
+    bof.fill(reinterpret_cast<std::uint8_t *>(&tempKey_),
+             sizeof(tempKey_));
+
+    poisoned_ = true;
+    armed_ = false;
 }
 
 bool KeySec::compromised()
@@ -97,4 +83,3 @@ bool KeySec::compromised()
     }
     return false;
 }
-
