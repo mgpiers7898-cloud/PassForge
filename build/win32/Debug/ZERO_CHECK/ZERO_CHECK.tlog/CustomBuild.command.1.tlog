@@ -1,0 +1,10 @@
+^D:\PERSONAL PRJECTS\PASSFORGE\BUILD\CMAKEFILES\D309C2937ADF4E667096AFF61CBA75AF\GENERATE.STAMP.RULE
+setlocal
+C:\msys64\mingw64\bin\cmake.exe "-SD:/Personal Prjects/PassForge" "-BD:/Personal Prjects/PassForge/build" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "D:/Personal Prjects/PassForge/build/PassForge.slnx"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

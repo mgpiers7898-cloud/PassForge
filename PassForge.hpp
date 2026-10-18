@@ -21,6 +21,7 @@
 #include <format>
 #include <fstream>
 #include <cstring>
+#include <filesystem>
 // MIXING BASED ON THE CHARSET CHOOSING:
 enum class Charset
 {
