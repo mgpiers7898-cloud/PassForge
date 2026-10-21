@@ -73,5 +73,5 @@ namespace Hash
         }
     };
 
-    [[nodiscard]] std::string hasher(HashType type);
+    [[nodiscard]] std::string hasher(std::string_view pass,HashType type);
 }
