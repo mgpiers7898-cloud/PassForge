@@ -31,7 +31,7 @@ enum class Charset
     Symbols
 };
 
-// Password Policy Scoped enum:
+// Password Policy Scoped enum: // 
 enum class PolicyRules
 {
     TooStrong,
@@ -384,6 +384,20 @@ namespace Entropy
                   std::size_t, std::size_t, std::size_t, long double);
         std::string getTheTime() const;
     };
+
+
+    struct GPUPower
+    {
+        std::string vendor_;
+        std::string model_;
+        std::string tier_;
+        double sha256Rate_;
+        double md5Rate_;
+        double sha512Rate_;;
+    };
+    [[nodiscard]] GPUPower parseGPU(std::string_view name);
+    std::string GPUModRoN();
+    [[nodiscard]]double estimateRate(std::string_view gpuName, HashType type);
 }
 
 
