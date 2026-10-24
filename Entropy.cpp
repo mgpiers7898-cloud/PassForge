@@ -1,6 +1,5 @@
 #include "PassForge.hpp"
 #include "Hash.hpp"
-#include <dxgi.h>
 
 double Entropy::estimate(std::string_view pass, std::size_t poolSize)
 {
@@ -61,21 +60,24 @@ std::string Entropy::showTheEstimateTime(double estimationBits, double guessPerS
     auto res = time.getTheTime();
     return res;
 }
-
-std::string Entropy::GPUModRoN()
+[[nodiscard]]Entropy::GPUPower Entropy::query()
 {
+    static GPUPower cached{};
+    static bool done = false;
+    if(done) return cached;
+
     IDXGIFactory1 *factory = nullptr;
     HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory1),
                                     reinterpret_cast<void **>(&factory));
     if (FAILED(hr))
-        return "";
+        return {};
 
     IDXGIAdapter *adapter = nullptr;
     hr = factory->EnumAdapters(0, &adapter);
     if (FAILED(hr))
     {
         factory->Release();
-        return "";
+        return {};
     }
 
     DXGI_ADAPTER_DESC desc = {};
@@ -84,24 +86,59 @@ std::string Entropy::GPUModRoN()
     {
         adapter->Release();
         factory->Release();
-        return "";
+        return {};
     }
 
     char narrow[128] = {};
-    int n = WideCharToMultiByte(CP_UTF8, 0, desc.Description, -1,
-                                narrow, sizeof(narrow), nullptr, nullptr);
+    WideCharToMultiByte(CP_UTF8, 0, desc.Description, -1,
+                        narrow, sizeof(narrow), nullptr, nullptr);
+
+    cached.model_ = narrow;
+    cached.vram_ = desc.DedicatedVideoMemory;
+    switch(desc.VendorId)
+    {
+        case 0x10DE : cached.vendor_ = "NVIDIA"; break;
+        case 0x1002 : cached.vendor_ = "AMD"; break;
+        case 0x8086 : cached.vendor_ = "Intel"; break;
+        default     : cached.vendor_ = "Unknown";
+    }
+    
     adapter->Release();
     factory->Release();
 
-    return narrow;
+    done = true;
+    return cached;
 }
 
+std::string Entropy::GPUModRoN()
+{
+
+
+    
+
+}
+// HEH!...!
 [[nodiscard]] Entropy::GPUPower Entropy::parseGPU(std::string_view name)
 {
+    auto n = lower(name);
+    GPUPower r;
+    if (name.empty())
+    {
+        r.vendor_ = "cpu";
+        return r;
+    }
+    if (n.find("nvidia") != std::string_view::npos)
+        r.vendor_ = "NVIDIA";
+    else if (n.find("radeon") != std::string_view::npos)
+        r.vendor_ = "AMD";
+    else if (n.find("intel") != std::string_view::npos)
+        r.vendor_ = "Intel";
+    else
+        r.vendor_ = "Unknown";
 
+    return r;
 }
 
-[[nodiscard]] double Entropy::estimateRate(std::string_view, HashType type)
+/*[[nodiscard]] double Entropy::estimateRate(std::string_view, HashType type)
 {
-
-}
+}*/

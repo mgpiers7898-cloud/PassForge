@@ -22,6 +22,7 @@
 #include <fstream>
 #include <cstring>
 #include <filesystem>
+#include <dxgi.h>
 // MIXING BASED ON THE CHARSET CHOOSING:
 enum class Charset
 {
@@ -362,6 +363,13 @@ namespace Engine
     Engine::SecureEngine &getEngine();
 }
 
+enum class HashType
+{
+    SHA256,
+    SHA512,
+    MD5
+};
+
 namespace Entropy
 {
     double estimate(std::string_view pass, std::size_t poolSize);
@@ -386,18 +394,33 @@ namespace Entropy
     };
 
 
+
     struct GPUPower
     {
-        std::string vendor_;
-        std::string model_;
-        std::string tier_;
-        double sha256Rate_;
-        double md5Rate_;
-        double sha512Rate_;;
+        std::string vendor_{};
+        std::string model_{};
+        std::string tier_{};
+        int vram_{};
+        double sha256Rate_{};
+        double md5Rate_{};
+        double sha512Rate_{};
     };
-    [[nodiscard]] GPUPower parseGPU(std::string_view name);
+    [[nodiscard]]GPUPower query();
+    [[nodiscard]]inline std::string lower(std::string_view s)
+    {
+        std::string out(s);
+        std::transform(out.begin(), out.end(), out.begin(),
+            [](unsigned char c){return std::tolower(c); });
+        return out;
+    }
+    [[nodiscard]] inline int getGPUVram()
+    {
+        
+    }
+
     std::string GPUModRoN();
-    [[nodiscard]]double estimateRate(std::string_view gpuName, HashType type);
+    [[nodiscard]] GPUPower parseGPU(std::string_view name);
+    [[nodiscard]] double estimateRate(std::string_view gpuName, HashType type);
 }
 
 

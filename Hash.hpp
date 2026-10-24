@@ -1,12 +1,7 @@
 #include "PassForge.hpp"
 #include <unordered_map>
 #include <iomanip>
-enum class HashType
-{
-    SHA256,
-    SHA512,
-    MD5
-};
+
 
 namespace Hash
 {
