@@ -2,6 +2,6 @@
 #include "PassForge.hpp"
 int main()
 {
-    auto res = Entropy::parseGPU(Entropy::GPUModRoN());
-    std::cout << res.vendor_ <<'\n';
+    std::cout << Entropy::query().model_ <<'\n';
+    std::cout << Entropy::getGPUVram() <<'\n';
 }

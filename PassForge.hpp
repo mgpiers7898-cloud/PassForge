@@ -23,6 +23,7 @@
 #include <cstring>
 #include <filesystem>
 #include <dxgi.h>
+#include <map>
 // MIXING BASED ON THE CHARSET CHOOSING:
 enum class Charset
 {
@@ -32,7 +33,7 @@ enum class Charset
     Symbols
 };
 
-// Password Policy Scoped enum: // 
+// Password Policy Scoped enum: //
 enum class PolicyRules
 {
     TooStrong,
@@ -57,7 +58,7 @@ enum class PoolType : std::uint32_t
     Consonants = 1 << 10,
 
     All =
-        ASCII |
+            ASCII |
         HexLower |
         HexUpper |
         Binary |
@@ -152,25 +153,31 @@ namespace Pool
                    Pool::upHexPool.size() +
                    Pool::lowHexPool.size();
         }
-        
+
         inline auto extractPass = [](auto res)
         {
-            if(res){return std::optional<std::string>(res.value());}
+            if (res)
+            {
+                return std::optional<std::string>(res.value());
+            }
             return std::optional<std::string>(std::nullopt);
         };
 
         inline auto extractSize = [](auto res)
         {
-            if(res){return std::optional<std::size_t>(res.value());}
+            if (res)
+            {
+                return std::optional<std::size_t>(res.value());
+            }
             return std::optional<std::size_t>(std::nullopt);
         };
 
-        inline std::uint64_t checksum(const void* base, std::size_t size)
+        inline std::uint64_t checksum(const void *base, std::size_t size)
         {
             std::uint64_t sum{};
-            const std::uint8_t* bytes = static_cast<const uint8_t*>(base);
+            const std::uint8_t *bytes = static_cast<const uint8_t *>(base);
 
-            for(std::size_t i{}; i < size; i++)
+            for (std::size_t i{}; i < size; i++)
             {
                 sum ^= bytes[i];
                 sum = std::rotl(sum, 1);
@@ -308,7 +315,7 @@ public:
         return this->poolProperties_.pool_;
     }
 
-    [[nodiscard]]std::size_t getOriginalSize() const;
+    [[nodiscard]] std::size_t getOriginalSize() const;
 
 private:
     PoolEntry poolProperties_{};
@@ -335,11 +342,10 @@ public:
 private:
     ValidationRules checkPair_{};
 
-    PoolBuilder& pool_;
+    PoolBuilder &pool_;
     PasswordPolicy policiesCheck_;
 
     void deleteDuplications() noexcept;
-
 };
 
 namespace Engine
@@ -392,36 +398,67 @@ namespace Entropy
                   std::size_t, std::size_t, std::size_t, long double);
         std::string getTheTime() const;
     };
-
-
+    struct TierRates
+    {
+        double sha256_{};
+        double md5_{};
+        double sha512_{};
+    };
+    inline const std::map<int, std::string_view> GPUTierMap{
+        {2, "integrated"},
+        {4, "low"},
+        {8, "mid"},
+        {12, "high"},
+        {16, "good_high"},
+        {24, "very_high"},
+        {32, "ultra"},
+        {48, "ultra_high"}};
+    inline const std::map<std::string_view, TierRates> TierRateMap{
+        {"integrated", {500e6, 5e9, 250e6}},
+        {"low", {1e9, 10e9, 500e6}},
+        {"mid", {1.2e9, 8.5e9, 200e6}},
+        {"high", {5e9, 50e9, 2.5e9}},
+        {"very_high", {10e9, 100e9, 5e9}},
+        {"ultra", {20e9, 200e9, 10e9}},
+        {"ultra_high", {30e9, 300e9, 15e9}},
+        {"cpu", {100e6, 500e6, 50e6}}};
 
     struct GPUPower
     {
         std::string vendor_{};
         std::string model_{};
         std::string tier_{};
-        int vram_{};
-        double sha256Rate_{};
-        double md5Rate_{};
-        double sha512Rate_{};
+        std::size_t vram_{};
     };
-    [[nodiscard]]GPUPower query();
-    [[nodiscard]]inline std::string lower(std::string_view s)
+
+    std::string tierOf(std::size_t gb);
+    [[nodiscard]] GPUPower query();
+    [[nodiscard]] inline std::string lower(std::string_view s)
     {
         std::string out(s);
         std::transform(out.begin(), out.end(), out.begin(),
-            [](unsigned char c){return std::tolower(c); });
+                       [](unsigned char c)
+                       { return std::tolower(c); });
         return out;
     }
-    [[nodiscard]] inline int getGPUVram()
+    [[nodiscard]] inline std::size_t getGPUVram()
     {
-        
+        return static_cast<std::size_t>(std::round(static_cast<double>(query().vram_) / (1024 * 1024 * 1024)));
     }
 
-    std::string GPUModRoN();
     [[nodiscard]] GPUPower parseGPU(std::string_view name);
-    [[nodiscard]] double estimateRate(std::string_view gpuName, HashType type);
+    [[nodiscard]] double estimateRate(HashType type);
+
+    struct EntropyInfo
+    {
+        std::size_t keySpace_{};
+        double EntropyBits_{};
+        double rate_{};
+        CheckTime estimatedTime_;
+    };
+
+    [[nodiscard]] EntropyInfo estimateFor(std::string_view mask, HashType type);
 }
 
-
-
+// we are gonna make the Entropy estimateFor Func that return the all
+// results from Entropy to the Bruteforce

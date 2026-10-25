@@ -1,6 +1,6 @@
 #include "PassForge.hpp"
 #include "Hash.hpp"
-
+#include <iostream>
 double Entropy::estimate(std::string_view pass, std::size_t poolSize)
 {
     return static_cast<double>(pass.size() * std::log2(poolSize));
@@ -60,11 +60,12 @@ std::string Entropy::showTheEstimateTime(double estimationBits, double guessPerS
     auto res = time.getTheTime();
     return res;
 }
-[[nodiscard]]Entropy::GPUPower Entropy::query()
+[[nodiscard]] Entropy::GPUPower Entropy::query()
 {
     static GPUPower cached{};
     static bool done = false;
-    if(done) return cached;
+    if (done)
+        return cached;
 
     IDXGIFactory1 *factory = nullptr;
     HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory1),
@@ -94,15 +95,24 @@ std::string Entropy::showTheEstimateTime(double estimationBits, double guessPerS
                         narrow, sizeof(narrow), nullptr, nullptr);
 
     cached.model_ = narrow;
-    cached.vram_ = desc.DedicatedVideoMemory;
-    switch(desc.VendorId)
+    cached.vram_ =
+        desc.DedicatedVideoMemory > 0 ? desc.DedicatedVideoMemory : desc.SharedSystemMemory;
+
+    switch (desc.VendorId)
     {
-        case 0x10DE : cached.vendor_ = "NVIDIA"; break;
-        case 0x1002 : cached.vendor_ = "AMD"; break;
-        case 0x8086 : cached.vendor_ = "Intel"; break;
-        default     : cached.vendor_ = "Unknown";
+    case 0x10DE:
+        cached.vendor_ = "NVIDIA";
+        break;
+    case 0x1002:
+        cached.vendor_ = "AMD";
+        break;
+    case 0x8086:
+        cached.vendor_ = "Intel";
+        break;
+    default:
+        cached.vendor_ = "Unknown";
     }
-    
+
     adapter->Release();
     factory->Release();
 
@@ -110,13 +120,6 @@ std::string Entropy::showTheEstimateTime(double estimationBits, double guessPerS
     return cached;
 }
 
-std::string Entropy::GPUModRoN()
-{
-
-
-    
-
-}
 // HEH!...!
 [[nodiscard]] Entropy::GPUPower Entropy::parseGPU(std::string_view name)
 {
@@ -139,6 +142,38 @@ std::string Entropy::GPUModRoN()
     return r;
 }
 
-/*[[nodiscard]] double Entropy::estimateRate(std::string_view, HashType type)
+std::string Entropy::tierOf(std::size_t gb)
 {
-}*/
+    auto it = GPUTierMap.lower_bound(gb);
+    if (it != GPUTierMap.end())
+        return it->second.data();
+    return "very_high";
+}
+
+[[nodiscard]] double Entropy::estimateRate(HashType type)
+{
+    // we are here with this shit error !
+    auto p = query();
+    auto gb = p.vram_;
+    std::string_view tier = tierOf(gb);
+
+    const auto& rit = TierRateMap.find(tier);
+    if (rit == TierRateMap.end())
+        return 100e6;
+    const auto &r = rit->second;
+    double base = (type == HashType::MD5)    ? r.md5_ 
+                : (type == HashType::SHA512) ? r.sha512_
+                : r.sha256_;
+
+    double factor = 1.0;
+    if(p.vendor_ == "AMD") factor = 0.9;
+    if(p.vendor_ == "Intel") factor = 0.3;
+
+    return base * factor;
+}
+
+[[nodiscard]] Entropy::EntropyInfo Entropy::estimateFor
+    (std::string_view mask, HashType type)
+{
+    
+}
