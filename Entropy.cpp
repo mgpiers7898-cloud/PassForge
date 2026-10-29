@@ -172,8 +172,88 @@ std::string Entropy::tierOf(std::size_t gb)
     return base * factor;
 }
 
-[[nodiscard]] Entropy::EntropyInfo Entropy::estimateFor
-    (std::string_view mask, HashType type)
+std::vector<std::string> Entropy::BF_Details::parseMask(std::string_view mask)
 {
-    
+    std::vector<std::string> charsets{};
+    std::string charset{};
+    std::size_t i{};
+    while(i < mask.size())
+    {
+        if (mask[i] == '?' && i + 1 < mask.size())
+        {
+            char token = mask[i + 1];
+            auto it = BF_Details::parMaskTable.find(token);
+            charsets.push_back(it != BF_Details::parMaskTable.end() ?
+                               it->second : "");
+            i += 2;
+        }
+        else
+        {
+            charsets.push_back(std::string(1, mask[i]));
+            i += 1;
+        }
+    }
+    return charsets;
+}
+
+std::size_t Entropy::BF_Details::keySpaceOf(const std::vector<std::string>& charsets)
+{
+    std::size_t total = 1;
+    for(auto& i : charsets)
+    {
+        if(i.empty()) return 0;
+        if(total < SIZE_MAX / i.size()) return 0;
+        total *= i.size();
+    }
+    return total;
+}
+
+Entropy::CheckTime Entropy::BF_Details::secondsToCheckTime(double totalSec)
+{
+    CheckTime t;
+    constexpr double SEC_PER_YEAR = 31'536'000.0;
+    constexpr double SEC_PER_DAY = 86'400.0;
+    constexpr double SEC_PER_HOUR = 3'600.0;
+    constexpr double SEC_PER_MIN = 60.0;
+
+    double rem = totalSec;
+
+    t.years_ = static_cast<std::size_t>(rem / SEC_PER_YEAR);
+    rem = std::fmod(rem, SEC_PER_YEAR);
+
+    t.days_ = static_cast<std::size_t>(rem / SEC_PER_DAY);
+    rem = std::fmod(rem, SEC_PER_DAY);
+
+    t.hours_ = static_cast<std::size_t>(rem / SEC_PER_HOUR);
+    rem = std::fmod(rem, SEC_PER_HOUR);
+
+    t.minutes_ = static_cast<std::size_t>(rem / SEC_PER_MIN);
+    rem = std::fmod(rem, SEC_PER_MIN);
+
+    t.seconds_ = static_cast<std::size_t>(rem);
+
+    return t;
+}
+
+[[nodiscard]] Entropy::EntropyInfo Entropy::estimateFor
+    (std::size_t keySpace, HashType type)
+{
+    EntropyInfo info;
+    info.keySpace_ = keySpace;
+
+    if(keySpace == 0)
+    {
+        info.EntropyBits_ = 0.0;
+    }
+    else
+    {
+        info.EntropyBits_ = std::log2(static_cast<double>(keySpace));
+    }
+    info.rate_ = estimateRate(type);
+    if(info.rate_ > 0)
+    {
+        double seconds = static_cast<double>(keySpace) / info.rate_;
+        info.estimatedTime_ = BF_Details::secondsToCheckTime(seconds);
+    }
+    return info;
 }

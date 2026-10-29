@@ -383,7 +383,6 @@ namespace Entropy
 
     struct CheckTime
     {
-    private:
         std::size_t years_;
         std::size_t days_;
         std::size_t hours_;
@@ -393,10 +392,16 @@ namespace Entropy
 
         std::string toString() const;
 
-    public:
         CheckTime(std::size_t, std::size_t,
                   std::size_t, std::size_t, std::size_t, long double);
         std::string getTheTime() const;
+        CheckTime() = default;
+
+        inline friend std::ostream& operator<<(std::ostream& os, const CheckTime& t)
+        {
+            os << t.toString();
+            return os;
+        }
     };
     struct TierRates
     {
@@ -455,10 +460,24 @@ namespace Entropy
         double EntropyBits_{};
         double rate_{};
         CheckTime estimatedTime_;
+
+        inline EntropyInfo() = default;
     };
 
-    [[nodiscard]] EntropyInfo estimateFor(std::string_view mask, HashType type);
-}
+    namespace BF_Details
+    {
+        std::vector<std::string> parseMask(std::string_view mask);
+        std::size_t keySpaceOf(const std::vector<std::string>& charsets);
 
-// we are gonna make the Entropy estimateFor Func that return the all
-// results from Entropy to the Bruteforce
+        inline const std::map<char, std::string> parMaskTable
+        {
+            {'l', "abcdefghijklmnopqrstuvwxyz"},
+            {'u', "ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
+            {'d', "0123456789"},
+            {'s', "!@#$%^&*()_+=[]{}:;\'\"<>,./?|\\~"},
+            {'a', std::string(Pool::asciiPrintablePool.data())}
+        };
+        CheckTime secondsToCheckTime(double totalSec);
+    }
+    [[nodiscard]] EntropyInfo estimateFor(std::size_t keySpace, HashType type);
+}
