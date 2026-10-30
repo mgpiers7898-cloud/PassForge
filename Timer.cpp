@@ -1,7 +1,7 @@
 #include "Timer.hpp"
 
 void Timers::countdown(std::size_t combos, std::size_t keySpace,
-    double rate, double elapsedSeconds)
+    double elapsedSeconds)
 {
     if(elapsedSeconds <= 0)
         return;

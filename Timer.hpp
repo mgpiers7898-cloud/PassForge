@@ -7,5 +7,5 @@
 namespace Timers
 {
     void countdown(std::size_t combos, std::size_t keySpace,
-                   double rate, double elapsedSeconds);
+                   double elapsedSeconds);
 }
