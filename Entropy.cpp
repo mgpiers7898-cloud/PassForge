@@ -152,24 +152,27 @@ std::string Entropy::tierOf(std::size_t gb)
 
 [[nodiscard]] double Entropy::estimateRate(HashType type)
 {
+    /* THESE ARE FOR ADDING THE GPU CODES! V1.1 or V2*/
     // we are here with this shit error !
-    auto p = query();
-    auto gb = p.vram_;
-    std::string_view tier = tierOf(gb);
+    //auto p = query();
+    //auto gb = p.vram_;
+    //std::string_view tier = tierOf(gb);
+    //const auto &rit = TierRateMap.find(tier);
+    //if (rit == TierRateMap.end())
+    //    return 100e6;
+    //const auto &r = rit->second;
+    //double base = (type == HashType::MD5)      ? r.md5_
+    //              : (type == HashType::SHA512) ? r.sha512_
+    //                                           : r.sha256_;
 
-    const auto& rit = TierRateMap.find(tier);
-    if (rit == TierRateMap.end())
-        return 100e6;
-    const auto &r = rit->second;
-    double base = (type == HashType::MD5)    ? r.md5_ 
-                : (type == HashType::SHA512) ? r.sha512_
-                : r.sha256_;
+    //double factor = 1.0;
+    //if (p.vendor_ == "AMD")
+    //    factor = 0.9;
+    //if (p.vendor_ == "Intel")
+    //    factor = 0.3;
 
-    double factor = 1.0;
-    if(p.vendor_ == "AMD") factor = 0.9;
-    if(p.vendor_ == "Intel") factor = 0.3;
-
-    return base * factor;
+    //return base * factor;
+    return cpuRate(type);
 }
 
 std::vector<std::string> Entropy::BF_Details::parseMask(std::string_view mask)
@@ -177,14 +180,13 @@ std::vector<std::string> Entropy::BF_Details::parseMask(std::string_view mask)
     std::vector<std::string> charsets{};
     std::string charset{};
     std::size_t i{};
-    while(i < mask.size())
+    while (i < mask.size())
     {
         if (mask[i] == '?' && i + 1 < mask.size())
         {
             char token = mask[i + 1];
             auto it = BF_Details::parMaskTable.find(token);
-            charsets.push_back(it != BF_Details::parMaskTable.end() ?
-                               it->second : "");
+            charsets.push_back(it != BF_Details::parMaskTable.end() ? it->second : "");
             i += 2;
         }
         else
@@ -196,13 +198,15 @@ std::vector<std::string> Entropy::BF_Details::parseMask(std::string_view mask)
     return charsets;
 }
 
-std::size_t Entropy::BF_Details::keySpaceOf(const std::vector<std::string>& charsets)
+std::size_t Entropy::BF_Details::keySpaceOf(const std::vector<std::string> &charsets)
 {
     std::size_t total = 1;
-    for(auto& i : charsets)
+    for (auto &i : charsets)
     {
-        if(i.empty()) return 0;
-        if(total < SIZE_MAX / i.size()) return 0;
+        if (i.empty())
+            return 0;
+        if (total > SIZE_MAX / i.size())
+            return 0; // Now resolved!
         total *= i.size();
     }
     return total;
@@ -235,13 +239,18 @@ Entropy::CheckTime Entropy::BF_Details::secondsToCheckTime(double totalSec)
     return t;
 }
 
-[[nodiscard]] Entropy::EntropyInfo Entropy::estimateFor
-    (std::size_t keySpace, HashType type)
+[[nodiscard]] double Entropy::cpuRate(HashType type)
+{
+    auto it = Entropy::CPURateMap.find(type);
+    return (it != CPURateMap.end()) ? it->second : 100e3;
+}
+
+[[nodiscard]] Entropy::EntropyInfo Entropy::estimateFor(std::size_t keySpace, HashType type)
 {
     EntropyInfo info;
     info.keySpace_ = keySpace;
 
-    if(keySpace == 0)
+    if (keySpace == 0)
     {
         info.EntropyBits_ = 0.0;
     }
@@ -250,7 +259,7 @@ Entropy::CheckTime Entropy::BF_Details::secondsToCheckTime(double totalSec)
         info.EntropyBits_ = std::log2(static_cast<double>(keySpace));
     }
     info.rate_ = estimateRate(type);
-    if(info.rate_ > 0)
+    if (info.rate_ > 0)
     {
         double seconds = static_cast<double>(keySpace) / info.rate_;
         info.estimatedTime_ = BF_Details::secondsToCheckTime(seconds);

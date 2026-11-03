@@ -2,7 +2,6 @@
 #include <unordered_map>
 #include <iomanip>
 
-
 namespace Hash
 {
     std::string sha256(std::string_view pass);
@@ -47,7 +46,8 @@ namespace Hash
 
         inline std::uint32_t rotl(std::uint32_t x, int n)
         {
-            if(n == 0) return x;
+            if (n == 0)
+                return x;
             return (x << n) | (x >> (32 - n));
         }
         inline std::uint32_t F(std::uint32_t b, std::uint32_t c, std::uint32_t d)
@@ -68,5 +68,5 @@ namespace Hash
         }
     };
 
-    [[nodiscard]] std::string hasher(std::string_view pass,HashType type);
+    [[nodiscard]] std::string hasher(std::string_view pass, HashType type);
 }

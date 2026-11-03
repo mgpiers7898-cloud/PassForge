@@ -397,7 +397,7 @@ namespace Entropy
         std::string getTheTime() const;
         CheckTime() = default;
 
-        inline friend std::ostream& operator<<(std::ostream& os, const CheckTime& t)
+        inline friend std::ostream &operator<<(std::ostream &os, const CheckTime &t)
         {
             os << t.toString();
             return os;
@@ -427,6 +427,10 @@ namespace Entropy
         {"ultra", {20e9, 200e9, 10e9}},
         {"ultra_high", {30e9, 300e9, 15e9}},
         {"cpu", {100e6, 500e6, 50e6}}};
+    inline const std::map<HashType, double> CPURateMap{
+        {HashType::SHA256, 200e3},
+        {HashType::MD5, 220e3},
+        {HashType::SHA512, 100e3}};
 
     struct GPUPower
     {
@@ -452,6 +456,7 @@ namespace Entropy
     }
 
     [[nodiscard]] GPUPower parseGPU(std::string_view name);
+    [[nodiscard]] double cpuRate(HashType type);
     [[nodiscard]] double estimateRate(HashType type);
 
     struct EntropyInfo
@@ -467,16 +472,14 @@ namespace Entropy
     namespace BF_Details
     {
         std::vector<std::string> parseMask(std::string_view mask);
-        std::size_t keySpaceOf(const std::vector<std::string>& charsets);
+        std::size_t keySpaceOf(const std::vector<std::string> &charsets);
 
-        inline const std::map<char, std::string> parMaskTable
-        {
+        inline const std::map<char, std::string> parMaskTable{
             {'l', "abcdefghijklmnopqrstuvwxyz"},
             {'u', "ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
             {'d', "0123456789"},
             {'s', "!@#$%^&*()_+=[]{}:;\'\"<>,./?|\\~"},
-            {'a', std::string(Pool::asciiPrintablePool.data())}
-        };
+            {'a', std::string(Pool::asciiPrintablePool.data())}};
         CheckTime secondsToCheckTime(double totalSec);
     }
     [[nodiscard]] EntropyInfo estimateFor(std::size_t keySpace, HashType type);

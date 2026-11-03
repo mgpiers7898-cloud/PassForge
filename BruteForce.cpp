@@ -4,22 +4,35 @@
 {
     // parse : 
     auto charsets = Entropy::BF_Details::parseMask(mask);
-    if(charsets.empty()) return std::nullopt;
+    if(charsets.empty())
+    {
+        std::cerr << "Empty Charset!\n";
+        return std::nullopt;
+    }
     // keySpace :
     auto keySpace = Entropy::BF_Details::keySpaceOf(charsets);
-    if(keySpace == 0) return std::nullopt;
+    if(keySpace == 0)
+    {
+        std::cerr << "zerp KeySpace!\n";
+        return std::nullopt;
+    }
     // estimate:
     auto info = Entropy::estimateFor(keySpace, type);
     // display :
+    std::cout << "Cracking on: CPU (1 thread)\n";
     std::cout << "KeySpace : " << info.keySpace_ << '\n';
-    std::cout << "Entropy : " << info.EntropyBits_ << '\n';
-    std::cout << "Rate : " << info.rate_ << '\n';
+    std::cout << "Entropy : " << info.EntropyBits_ << " bits\n";
+    std::cout << "Rate : " << info.rate_ << " H/s\n";
     std::cout << "ETA : " << info.estimatedTime_ <<'\n';
     //  confirm :
     std::cout << "Proceed ? (y/n) >";
     char c;
     std::cin >> c;
-    if(c != 'y' && c != 'Y') return std::nullopt;
+    if(c == 'n' || c == 'N')
+    {
+        std::cerr << "canceled by userN!\n";
+        return std::nullopt;
+    }
     // timer :
     auto start = std::chrono::steady_clock::now();
     auto lastUpdate = start;
@@ -64,7 +77,10 @@
         }
         // cancel check :
         if(GetAsyncKeyState('Q') & 0x8000)
+        {
+            std::cerr << "canceled by userQ!\n";
             return std::nullopt;
+        }
         // odemeter increment :
         std::size_t pos = charsets.size();
         bool done = false;
