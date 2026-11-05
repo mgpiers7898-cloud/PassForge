@@ -135,6 +135,11 @@ void PassForge::crackFlow()
 
 void PassForge::saveFlow()
 {
+    if(this->pass_.empty())
+    {
+        std::cerr << "Pass not generated! or something else happend\n";
+        return;
+    }
     std::ofstream o("passforge.txt", std::ios::app);
     o   << "pass: "   << pass_ << '\t' << "len: " << size_ 
         << "SHA256: " << Hash::hasher(pass_, HashType::SHA256) << '\n'
@@ -162,7 +167,13 @@ void PassForge::runPrompt()
 
         switch(choice)
         {
-            
+            case 0 : this->setOptions(); continue;
+            case 1 : this->generateFlow(); continue;
+            case 2 : this->hashFlow(); continue;
+            case 3 : this->estimateFlow(); continue;
+            case 4 : this->crackFlow(); continue;
+            case 5 : this->saveFlow(); continue;
+            case 6 : return;
         }
     }
 }
