@@ -24,6 +24,7 @@
 #include <filesystem>
 #include <dxgi.h>
 #include <map>
+#include <unordered_map>
 // MIXING BASED ON THE CHARSET CHOOSING:
 enum class Charset
 {
@@ -34,7 +35,7 @@ enum class Charset
 };
 
 // Password Policy Scoped enum: //
-enum class PolicyRules
+enum class PolicyRules : std::uint32_t
 {
     TooStrong,
     Strong,
@@ -58,7 +59,7 @@ enum class PoolType : std::uint32_t
     Consonants = 1 << 10,
 
     All =
-            ASCII |
+        ASCII |
         HexLower |
         HexUpper |
         Binary |
@@ -250,7 +251,7 @@ private:
 
     Policies currentPolicy_;
 
-    const Policies &passRules() const noexcept { return this->currentPolicy_; }
+    inline const Policies &passRules() const noexcept { return this->currentPolicy_; }
 
     static constexpr const char *validationMessage =
         R"(Manual policy requirements:
@@ -369,11 +370,11 @@ namespace Engine
     Engine::SecureEngine &getEngine();
 }
 
-enum class HashType
+enum class HashType : std::uint8_t
 {
-    SHA256,
-    SHA512,
-    MD5
+    SHA256 = 1,
+    SHA512 = 2,
+    MD5 = 3 
 };
 
 namespace Entropy

@@ -41,6 +41,7 @@
     std::size_t combos{};
 
     BF::Result r;
+    std::cout << "Q to stop! > ";
     while(1)
     {
         std::string candidate{};
