@@ -1,29 +1,33 @@
 #pragma once
 
-#include <string>
-#include <cstdint>
-#include <string_view>
-#include <fstream>
-#include <windows.h>
 #include "Hash.hpp"
+#include "PassForge.hpp"
+#include <chrono>
+#include "Timer.hpp"
 
-namespace BruteForce
+namespace BF
 {
     struct Result
     {
+        std::string targetHash_{};
         std::string password_{};
         double time_{};
         double rate_{};
-        bool success_{};
-        std::string error_{};
+        double entropy_{};
+        Entropy::CheckTime estimatedTime_{};
 
-        double entropyBit_;
-        std::string crkTimeEst_;
+        friend std::ostream& operator<<(std::ostream& out, const Result& res)
+        {
+            out << "TARGET H:  "       << res.targetHash_
+                << "PASSWORD : "       << res.password_
+                << "TIME : "           << res.time_
+                << "RATE : "           << res.rate_
+                << "ENTROPY : "        << res.entropy_
+                << "ESTIMATED TIME : " << res.estimatedTime_;
+
+            return out;
+        }
     };
+    [[nodiscard]]std::optional<Result> run(std::string_view hash, std::string_view mask, HashType type);
+}
 
-    Result run(std::string_view hash, const std::string& mask, HashType type);
-
-    std::string hasher(HashType type);
-
-    std::string parseRes(Result&& res);
-};
